@@ -41,6 +41,19 @@
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.navbar-brand');
+            const currentLocation = window.location.pathname;
+
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentLocation) {
+                    link.classList.add('selected');
+                }
+            });
+        });
+    </script>
 </body>
 
 

@@ -32,4 +32,7 @@
 
 
 }
-.
+
+.navbar-brand:hover, .navbar-brand.selected {
+    text-decoration: underline;
+}
