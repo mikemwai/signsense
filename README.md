@@ -1,4 +1,4 @@
-# signsense
+# Signsense
 
 This is a machine learning model designed for the recognition of Kenyan Sign Language. This project aims to bridge the communication gap by providing an efficient and accessible tool for understanding and interpreting Kenyan Sign Language.
 
