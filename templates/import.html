@@ -15,10 +15,16 @@
 
 <body>
     <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="#"><img src="{{ url_for('static', filename='logo.png') }}" class="navbar-brand" style="height: 50px; margin-right: 5px;">Signsense</a>
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('index', filename='logo.png') }}">
+            <img src="{{ url_for('static', filename='logo.png') }}" class="navbar-brand" style="height: 50px; margin-right: 5px;">Signsense
+        </a>
+        <div class="ml-auto">
+            <a class="navbar-brand d-inline-block" href="{{ url_for('index') }}">Home</a>
+            <a class="navbar-brand d-inline-block" href="{{ url_for('about') }}">About</a>
         </div>
-    </nav>
+    </div>
+</nav>
 
     {% block content %}
     {% endblock %}
