@@ -19,12 +19,23 @@ This is a machine learning model designed for the recognition of Kenyan Sign Lan
 
 ## Usage
 
-Run the application using the command:
-    ```
-    python app.py
+- Run the following command to start the application:
+
+  - On Windows:
+
+    ```sh
+        set FLASK_APP=app.py
+        flask run
     ```
 
-Navigate to the displayed local URL in your web browser. The application should be running and ready for use.
+  - On Unix/Linux/Mac:
+
+    ```sh
+        export FLASK_APP=app.py
+        flask run
+    ```
+
+- This will start a development server on http://127.0.0.1:5000/ where you can access the application.
 
 ## Contributions
 
