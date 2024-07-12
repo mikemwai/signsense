@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Signsense</title>
     <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
@@ -15,16 +16,20 @@
 
 <body>
     <nav class="navbar navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="{{ url_for('index', filename='logo.png') }}">
-            <img src="{{ url_for('static', filename='logo.png') }}" class="navbar-brand" style="height: 50px; margin-right: 5px;">Signsense
-        </a>
-        <div class="ml-auto">
-            <a class="navbar-brand d-inline-block" href="{{ url_for('index') }}">Home</a>
-            <a class="navbar-brand d-inline-block" href="{{ url_for('about') }}">About</a>
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index', filename='logo.png') }}">
+                <img src="{{ url_for('static', filename='logo.png') }}" class="navbar-brand" style="height: 50px; margin-right: 5px;">Signsense
+            </a>
+            <div class="ml-auto">
+                <a class="navbar-brand d-inline-block" href="{{ url_for('index') }}">Home</a>
+                <a class="navbar-brand d-inline-block" href="{{ url_for('about') }}">About</a>
+                <!-- User icon button -->
+                <a class="navbar-brand d-inline-block" href="{{ url_for('authentication') }}">
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     {% block content %}
     {% endblock %}
