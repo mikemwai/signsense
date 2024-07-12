@@ -56,5 +56,11 @@
         document.getElementById('registerForm').style.display = 'block';
         document.getElementById('loginForm').style.display = 'none';
     });
+
+    // Corrected redirection to match Flask route
+    document.querySelector('#loginForm form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        window.location.href = '/user_dashboard'; // Redirect to the root, matching the Flask route for index
+    });
 </script>
 {% endblock %}
