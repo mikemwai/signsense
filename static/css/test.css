@@ -36,3 +36,66 @@
 .navbar-brand:hover, .navbar-brand.selected {
     text-decoration: underline;
 }
+
+/* Form container styling */
+#loginForm, #registerForm {
+    background-color: #f2f2f2;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Input field styling */
+#loginForm input, #registerForm input {
+    width: calc(100% - 20px); /* Full width minus padding */
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+#loginForm input:focus, #registerForm input:focus {
+    border-color: #777;
+    outline: none;
+}
+
+/* Button styling */
+.form-toggle-btn {
+    width: 100%; /* Set a specific width */
+    background-color: #007bff; /* Bootstrap's info color for a light blue */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px 5px; /* Slight separation between buttons */
+    margin-bottom: 0px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-toggle-btn:hover {
+    background-color: #138496; /* A darker shade of the info color for hover effect */
+}
+
+.form-check-input {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+
+.google-btn{
+    margin-top: 0px;
+    width: 100%; /* Set a specific width */
+    background-color: #f9fafc; /* Bootstrap's info color for a light blue */
+    color: black;
+    border: 1px solid #535353;
+    padding: 10px 20px;
+    margin: 10px 5px; /* Slight separation between buttons */
+    margin-bottom: 0px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
