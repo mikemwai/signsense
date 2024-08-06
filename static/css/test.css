@@ -14,7 +14,6 @@
 
 .foot
 {
-
     background-color: #222222;
     color:white;
     margin-top:300px;
@@ -98,4 +97,70 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+}
+
+/* Add this to static/css/test.css */
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #343a40; /* Bootstrap's dark background color */
+    color: white;
+    padding: 10px 0;
+}
+
+/* Add this to static/css/test.css */
+.center-content {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.center-content p {
+    margin: 0 auto;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+/* Ensure the navbar is responsive */
+.navbar {
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+/* Add this to static/css/test.css */
+.nav-link.active {
+    text-decoration: underline;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    .navbar-nav {
+        width: 100%;
+        text-align: center;
+    }
+    .navbar-nav .nav-item {
+        width: 100%;
+    }
+    .content p {
+        font-size: 1rem;
+    }
+    .footer {
+        padding: 10px;
+    }
+    .center-content {
+        padding: 5px 5px 5px 25px;
+        width: 100%;
+    }
+    .center-content p {
+        font-size: 1rem; /* Adjust font size for smaller screens */
+        padding: 5px 50px 5px 50px;
+    }
 }

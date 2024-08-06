@@ -25,7 +25,7 @@ This is a machine learning model designed for the recognition of Kenyan Sign Lan
 
     ```sh
         set FLASK_APP=app.py
-        flask run
+        flask run --host=0.0.0.0
     ```
 
   - On Unix/Linux/Mac:
