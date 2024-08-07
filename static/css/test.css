@@ -138,6 +138,27 @@
     text-decoration: underline;
 }
 
+/* Add this to static/css/test.css */
+.collapse-menu {
+    position: absolute;
+    left: -260px;
+    top: 120px;
+    width: 260px;
+    height: 100%;
+    background-color: #343a40;
+    z-index: 1030;
+    transition: left 0.5s ease-in-out;
+}
+
+.menu-toggle i, .close-menu i {
+    font-size: 20px;
+    color: white;
+}
+
+.close-menu {
+    margin-bottom: 10px;
+}
+
 /* Media query for smaller screens */
 @media (max-width: 768px) {
     .navbar-brand {
@@ -163,5 +184,8 @@
     .center-content p {
         font-size: 1rem; /* Adjust font size for smaller screens */
         padding: 5px 50px 5px 50px;
+    }
+    .collapse-menu {
+        height: auto; /* Adjust height for mobile screens */
     }
 }
