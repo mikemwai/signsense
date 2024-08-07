@@ -89,14 +89,15 @@
     margin-top: 0px;
     width: 100%; /* Set a specific width */
     background-color: #f9fafc; /* Bootstrap's info color for a light blue */
-    color: black;
-    border: 1px solid #535353;
+    color: #353535;
+    border: 1px solid #706f6f;
     padding: 10px 20px;
     margin: 10px 5px; /* Slight separation between buttons */
     margin-bottom: 0px;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    font-family: Arial, serif;
 }
 
 /* Add this to static/css/test.css */

@@ -1,18 +1,18 @@
-{% extends "import.html" %}
+{% extends "layouts/import.html" %}
 
 {% block content %}
 <div class="container mt-2">
     <!-- Login Form -->
     <div id="loginForm">
         <form>
-            <h3 class="text-center">Welcome Back!</h3><br>
-            <label for="emailLogin"><strong>Email Address</strong></label>
+            <h3 class="text-center" style="font-family: Arial, serif;">Welcome Back!</h3><br>
+            <label for="emailLogin" style="font-family: Arial, serif;">Email Address</label>
             <input type="email" placeholder="Enter email address" name="email" id="emailLogin">
-            <label for="passwordLogin"><strong>Password</strong></label>
+            <label for="passwordLogin" style="font-family: Arial, serif;">Password</label>
             <input type="password" placeholder="Enter your password" name="password" id="passwordLogin">
             <a href="#" class="forgot-password-link">Forgot Password?</a>
             <button type="submit" class="form-toggle-btn">Login</button>
-            <button type="button" id="showRegisterBtn" class="form-toggle-btn">Sign Up Now</button>
+            <button type="button" id="showRegisterBtn" class="form-toggle-btn">Sign Up</button>
         </form>
         <!-- Sign in with Google button -->
         <div class="google-signin">
@@ -26,19 +26,19 @@
                         <path fill="none" d="M0 0h48v48H0z"></path>
                     </g>
                 </svg>
-                <strong>Sign In with Google</strong>
+                Continue with Google
             </button>
         </div>
     </div>
     <!-- Register Form -->
     <div id="registerForm" style="display:none;">
         <form>
-            <h3 class="text-center">Create Account</h3><br>
-            <label for="emailRegister"><strong>Email Address</strong></label>
+            <h3 class="text-center" style="font-family: Arial, serif;">Create Account</h3><br>
+            <label for="emailRegister" style="font-family: Arial, serif;">Email Address</label>
             <input type="email" placeholder="Enter your email address" name="email">
-            <label for="phoneNoRegister"><strong>Phone Number</strong></label>
+            <label for="phoneNoRegister" style="font-family: Arial, serif;">Phone Number</label>
             <input type="number" placeholder="Enter your phone number" name="phone_no">
-            <label for="passwordRegister"><strong>Password</strong></label>
+            <label for="passwordRegister" style="font-family: Arial, serif;">Password</label>
             <input type="password" placeholder="Enter your password" name="password">
             <button type="submit"class="form-toggle-btn">Register</button>
             <button type="button" id="showLoginBtn" class="form-toggle-btn">Sign In</button>
