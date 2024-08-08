@@ -139,6 +139,11 @@
 }
 
 /* Add this to static/css/test.css */
+.nav-link i {
+    margin-right: 8px; /* Add some space between the icon and the text */
+}
+
+/* Add this to static/css/test.css */
 .collapse-menu {
     position: absolute;
     left: -260px;
