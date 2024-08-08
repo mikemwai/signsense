@@ -29,5 +29,10 @@ def user_dashboard():
     return render_template('pages/user_dashboard.html')
 
 
+@app.route('/forget_password', methods=['GET'])
+def forget_password():
+    return render_template('pages/forget_password.html')
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
