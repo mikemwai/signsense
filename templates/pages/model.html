@@ -1,10 +1,16 @@
 {% extends "layouts/import.html" %}
 {% block content %}
 
-<center>
-<br><h2>Welcome to Signsense's recognition portal!</h2>
+<style>
+    body {
+        padding-top: 70px;
+    }
+</style>
 
-    <p class="lead"><strong>Show KSL sign signals in front of the camera</strong>, and let the advanced ML system detect and convert into a text output.</p>
+<center>
+    <br><h2>Welcome to Signsense's recognition portal!</h2>
+
+    <p class="lead"><strong>Show KSL sign signals in front of the camera or upload an image/ video</strong>, and let the advanced ML system detect and convert into a text output.</p>
 
     <video id="video" width="450" height="350" autoplay></video>
     <canvas id="canvas" width="450" height="350" style="display: none;"></canvas>
@@ -15,11 +21,19 @@
         <span> </span>
     </h3>
 
+    <!-- File upload section -->
+    <div style="margin-top: 20px;">
+        <input type="file" id="fileInput" accept="image/*,video/*">
+        <button class="btn btn-primary" onclick="uploadFile()">Upload</button>
+    </div>
+
     <!-- Display recognized sign section -->
     <div id="recognized-sign" style="margin-top: 20px;">
         <h4>Recognized Sign:</h4>
         <p id="sign-text">Waiting for sign...</p>
     </div>
+
+
 </center><br><br>
 
 <!-- Collapsible Menu Button -->
@@ -106,5 +120,32 @@
 
     // Example of capturing a frame every 5 seconds
     setInterval(captureFrame, 5000);
+
+    // Function to handle file upload
+    function uploadFile() {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/upload_file', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                document.getElementById('result').innerText = data.result;
+                // Update recognized sign text
+                document.getElementById('sign-text').innerText = data.sign || "Sign not recognized";
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        } else {
+            alert('Please select a file to upload.');
+        }
+    }
 </script>
 {% endblock %}

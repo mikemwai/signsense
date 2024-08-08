@@ -8,11 +8,6 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
-    <style>
-        body {
-            padding-top: 70px;
-        }
-    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="position: fixed; width: 100%; display: flex; top: 0; z-index: 1030;">
@@ -46,8 +41,9 @@
         {% endblock %}
     </div>
 
-    <footer class="navbar navbar-dark bg-dark" style="position: fixed; left: 0; bottom: 0; width: 100%; display: flex; justify-content: center; align-items: center; padding: 10px 0;">
-        <p style="color: white;">&copy; <span id="currentYear"></span> Signsense</p>
+    <footer class="navbar navbar-dark bg-dark" style="position: fixed; left: 0; bottom: 0; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px 0;">
+        <p style="color: white;">&copy; <span id="currentYear"></span> Signsense. All rights reserved.</p>
+        <!--<p><a href="/privacy" class="text-white">Privacy Policy</a> | <a href="/terms" class="text-white">Terms of Service</a></p>-->
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

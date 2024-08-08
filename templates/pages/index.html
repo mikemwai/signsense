@@ -1,73 +1,64 @@
 {% extends "layouts/import.html" %}
 {% block content %}
 
-<center>
-<br><h2>Welcome to Signsense's recognition portal!</h2>
-
-    <p class="lead"><strong>Show KSL sign signals in front of the camera</strong>, and let the advanced ML system detect and convert into a text output.</p>
-
-    <video id="video" width="450" height="350" autoplay></video>
-    <canvas id="canvas" width="450" height="350" style="display: none;"></canvas>
-
-    <div class="loader" style="display:none;"></div>
-
-    <h3 id="result">
-        <span> </span>
-    </h3>
-
-    <!-- Display recognized sign section -->
-    <div id="recognized-sign" style="margin-top: 20px;">
-        <h4>Recognized Sign:</h4>
-        <p id="sign-text">Waiting for sign...</p>
+<!-- Carousel Section -->
+<div id="contentCarousel" class="carousel slide" data-ride="carousel" style="height: 100vh; width: 100vw;">
+    <div class="carousel-inner" style="height: 100vh; width: 100vw;">
+        <!-- Hero Section -->
+        <div class="carousel-item active" style="height: 100vh; width: 100vw;">
+            <div class="jumbotron text-center d-flex align-items-center justify-content-center" style="background-image: url('https://res.cloudinary.com/dkmblonw5/image/upload/v1723154664/signsense/image1.jpg'); background-size: cover; color: white; height: 100%; width: 100%; margin: 0;">
+                <div>
+                    <h1 class="display-4">Welcome to Signsense</h1>
+                    <p class="lead">Bridging the communication gap between the hearing and the deaf community</p>
+                    <a class="btn btn-primary btn-lg" href="/authentication" role="button">Get Started</a>
+                </div>
+            </div>
+        </div>
+        <!-- How does it work? -->
+        <div class="carousel-item" style="height: 100vh; width: 100vw;">
+            <div class="jumbotron text-center d-flex align-items-center justify-content-center" style="background-image: url('https://res.cloudinary.com/dkmblonw5/image/upload/v1723154667/signsense/image2.jpg'); background-size: cover; color: white; height: 100%; width: 100%; margin: 0;">
+                <div>
+                    <h1 class="display-4">How does it work?</h1>
+                    <p class="lead">Signsense uses a webcam to detect the user's hand gestures and translates them into text.</p>
+                </div>
+            </div>
+        </div>
+        <!-- Why use Signsense? -->
+        <div class="carousel-item" style="height: 100vh; width: 100vw;">
+            <div class="jumbotron text-center d-flex align-items-center justify-content-center" style="background-image: url('https://res.cloudinary.com/dkmblonw5/image/upload/v1723154666/signsense/image3.jpg'); background-size: cover; color: white; height: 100%; width: 100%; margin: 0;">
+                <div>
+                    <h1 class="display-4">Why use Signsense?</h1>
+                    <p class="lead">Signsense is a free and easy-to-use web application accessible from any device.</p>
+                </div>
+            </div>
+        </div>
+        <!-- Who can use Signsense? -->
+        <div class="carousel-item" style="height: 100vh; width: 100vw;">
+            <div class="jumbotron text-center d-flex align-items-center justify-content-center" style="background-image: url('https://res.cloudinary.com/dkmblonw5/image/upload/v1723154669/signsense/image4.jpg'); background-size: cover; color: white; height: 100%; width: 100%; margin: 0;">
+                <div>
+                    <h1 class="display-4">Who can use Signsense?</h1>
+                    <p class="lead">Designed for anyone who wants to learn sign language or communicate with the deaf community.</p>
+                </div>
+            </div>
+        </div>
+        <!-- How can I support Signsense? -->
+        <div class="carousel-item" style="height: 100vh; width: 100vw;">
+            <div class="jumbotron text-center d-flex align-items-center justify-content-center" style="background-image: url('https://res.cloudinary.com/dkmblonw5/image/upload/f_auto,q_auto/v1/signsense/image5'); background-size: cover; color: white; height: 100%; width: 100%; margin: 0;">
+                <div>
+                    <h1 class="display-4">How can I support Signsense?</h1>
+                    <p class="lead">Help us spread the word, share it with friends and family, and provide feedback.</p>
+                </div>
+            </div>
+        </div>
     </div>
+    <a class="carousel-control-prev" href="#contentCarousel" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#contentCarousel" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+    </a>
+</div>
 
-<script>
-    const video = document.getElementById('video');
-
-    // Get access to the camera
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function(stream) {
-                video.srcObject = stream;
-                video.play();
-            })
-            .catch(function(err) {
-                console.log("An error occurred: " + err);
-            });
-    }
-
-    // Function to capture a frame and send it to the server
-    function captureFrame() {
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, 640, 480);
-        // Convert canvas to data URL
-        const dataURL = canvas.toDataURL('image/png');
-
-        // Example of sending the dataURL to the server
-        // You'll need to implement the server-side processing to handle this
-        fetch('/analyze_frame', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ image: dataURL }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            document.getElementById('result').innerText = data.result;
-            // Update recognized sign text
-            document.getElementById('sign-text').innerText = data.sign || "Sign not recognized";
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-    }
-
-    // Example of capturing a frame every 5 seconds
-    setInterval(captureFrame, 5000);
-</script>
-
-</center><br><br>
 {% endblock %}
