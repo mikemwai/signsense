@@ -3,135 +3,108 @@
 
 <style>
     body {
-        padding-top: 70px;
+        padding-top: 35px;
     }
 </style>
 
-<center>
-    <br><h2>Welcome to Signsense's recognition portal!</h2>
+    <div class="recognition-portal">
+        <center>
+            <br><h2>Welcome to Signsense's recognition portal!</h2>
 
-    <p class="lead"><strong>Show KSL sign signals in front of the camera or upload an image/ video</strong>, and let the advanced ML system detect and convert into a text output.</p>
+            <p class="lead"><strong>Show KSL sign signals in front of the camera or upload an image/ video</strong>, and let the advanced ML system detect and convert into a text output.</p>
 
-    <video id="video" width="450" height="350" autoplay></video>
-    <canvas id="canvas" width="450" height="350" style="display: none;"></canvas>
+            <video id="video" width="450" height="350" autoplay></video>
+            <canvas id="canvas" width="450" height="350" style="display: none;"></canvas>
 
-    <div class="loader" style="display:none;"></div>
+            <div class="loader" style="display:none;"></div>
 
-    <h3 id="result">
-        <span> </span>
-    </h3>
+            <h3 id="result">
+                <span> </span>
+            </h3>
 
-    <!-- File upload section -->
-    <div style="margin-top: 20px;">
-        <input type="file" id="fileInput" accept="image/*,video/*">
-        <button class="btn btn-primary" onclick="uploadFile()">Upload</button>
+            <!-- File upload section -->
+            <div style="margin-top: 20px;">
+                <input type="file" id="fileInput" accept="image/*,video/*">
+                <button class="btn btn-primary" onclick="uploadFile()">Upload</button>
+            </div>
+
+            <!-- Display recognized sign section -->
+            <div id="recognized-sign" style="margin-top: 20px;">
+                <h4>Recognized Sign:</h4>
+                <p id="sign-text">Waiting for sign...</p>
+            </div>
+        </center><br><br>
     </div>
 
-    <!-- Display recognized sign section -->
-    <div id="recognized-sign" style="margin-top: 20px;">
-        <h4>Recognized Sign:</h4>
-        <p id="sign-text">Waiting for sign...</p>
-    </div>
-
-
-</center><br><br>
-
-<!-- Collapsible Menu Button -->
-<button class="btn btn-primary menu-toggle" type="button" id="menuButton" style="position: absolute; left: 0; top: 78px; width: 50px; background-color: #343a40;">
-    <i class="fas fa-arrow-right"></i>
-</button>
-
-<!-- Collapsible Menu -->
-<div id="collapsibleMenu" class="collapse-menu" style="position: absolute; left: -260px; top: 75px; width: 200px; background-color: #343a40; z-index: 1030; transition: left 0.5s ease-in-out;">
-    <button class="btn btn-primary close-menu" type="button" id="closeMenuButton" style="background-color: #343a40; color: white; width: 20%; margin-left: 150px">
-        <i class="fas fa-times"></i>
+    <!-- Collapsible Menu Button -->
+    <button class="btn btn-primary menu-toggle" type="button" id="menuButton" style="position: absolute; left: 0; top: 78px; width: 50px; background-color: #343a40;">
+        <i class="fas fa-arrow-right"></i>
     </button>
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('user_dashboard') }}" style="color: white;">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('model') }}" style="color: white;">
-                            <i class="fas fa-cogs"></i> Model
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('authentication') }}" style="color: white;">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </a>
-                    </li>
-                </ul>
+
+    <!-- Collapsible Menu -->
+    <div id="collapsibleMenu" class="collapse-menu" style="position: absolute; left: -260px; top: 75px; width: 200px; background-color: #343a40; z-index: 1030; transition: left 0.5s ease-in-out;">
+        <button class="btn btn-primary close-menu" type="button" id="closeMenuButton" style="background-color: #343a40; color: white; width: 20%; margin-left: 150px">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('user_dashboard') }}" style="color: white;">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('model') }}" style="color: white;">
+                                <i class="fas fa-cogs"></i> Model
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('authentication') }}" style="color: white;">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Include the JavaScript file -->
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- Include the JavaScript file -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
-<script>
-    const video = document.getElementById('video');
+    <script>
+        const video = document.getElementById('video');
 
-    // Get access to the camera
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(function(stream) {
-                video.srcObject = stream;
-                video.play();
-            })
-            .catch(function(err) {
-                console.log("An error occurred: " + err);
-            });
-    }
+        // Get access to the camera
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.play();
+                })
+                .catch(function(err) {
+                    console.log("An error occurred: " + err);
+                });
+        }
 
-    // Function to capture a frame and send it to the server
-    function captureFrame() {
-        const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, 640, 480);
-        // Convert canvas to data URL
-        const dataURL = canvas.toDataURL('image/png');
+        // Function to capture a frame and send it to the server
+        function captureFrame() {
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, 640, 480);
+            // Convert canvas to data URL
+            const dataURL = canvas.toDataURL('image/png');
 
-        // Example of sending the dataURL to the server
-        // You'll need to implement the server-side processing to handle this
-        fetch('/analyze_frame', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ image: dataURL }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            document.getElementById('result').innerText = data.result;
-            // Update recognized sign text
-            document.getElementById('sign-text').innerText = data.sign || "Sign not recognized";
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-    }
-
-    // Example of capturing a frame every 5 seconds
-    setInterval(captureFrame, 5000);
-
-    // Function to handle file upload
-    function uploadFile() {
-        const fileInput = document.getElementById('fileInput');
-        const file = fileInput.files[0];
-        if (file) {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            fetch('/upload_file', {
+            // Example of sending the dataURL to the server
+            // You'll need to implement the server-side processing to handle this
+            fetch('/analyze_frame', {
                 method: 'POST',
-                body: formData,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: dataURL }),
             })
             .then(response => response.json())
             .then(data => {
@@ -143,9 +116,36 @@
             .catch((error) => {
                 console.error('Error:', error);
             });
-        } else {
-            alert('Please select a file to upload.');
         }
-    }
-</script>
+
+        // Example of capturing a frame every 5 seconds
+        setInterval(captureFrame, 5000);
+
+        // Function to handle file upload
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                fetch('/upload_file', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    document.getElementById('result').innerText = data.result;
+                    // Update recognized sign text
+                    document.getElementById('sign-text').innerText = data.sign || "Sign not recognized";
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            } else {
+                alert('Please select a file to upload.');
+            }
+        }
+    </script>
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends "layouts/import.html" %}
 
 {% block content %}
-<div class="container mt-2" style="padding-top: 70px">
+<div class="container mt-2" style="padding-top: 60px">
     <!-- Login Form -->
     <div id="loginForm">
         <form>
@@ -12,9 +12,9 @@
             <input type="password" placeholder="Enter your password" name="password" id="passwordLogin">
             <a href="{{ url_for('forget_password') }}" class="forgot-password-link">Forgot Password?</a>
             <button type="submit" class="form-toggle-btn">Login</button>
-            <p style="margin-top: 10px; text-align: center;">Don't have an account?
+            <label class="paragraph" style="margin-top: 10px; text-align: center;">Don't have an account?
                 <a href="#" id="showRegisterLink" class="forgot-password-link">Sign Up</a>
-            </p>
+            </label>
 
             <!-- OR text with strikethrough effect -->
             <div class="or-container">
@@ -49,9 +49,10 @@
             <label for="passwordRegister" style="font-family: Arial, serif;">Password</label>
             <input type="password" placeholder="Enter your password" name="password">
             <button type="submit" class="form-toggle-btn">Register</button>
-            <p style="margin-top: 10px; text-align: center;">Already have an account?
+            <label class="paragraph" style="margin-top: 10px; text-align: center;">
+                Already have an account?
                 <a href="#" id="showLoginLink" class="forgot-password-link">Log In</a>
-            </p>
+            </label>
         </form>
     </div>
 </div>

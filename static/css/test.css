@@ -248,7 +248,11 @@ html, body {
         font-size: 1rem; /* Adjust font size for smaller screens */
         padding: 5px 50px 5px 50px;
     }
-    .collapse-menu {
-        height: auto; /* Adjust height for mobile screens */
+    /*.collapse-menu {*/
+    /*    height: auto; !* Adjust height for mobile screens *!*/
+    /*}*/
+    .recognition-portal{
+        padding-top: 35px;
+        padding-bottom: 35px;
     }
 }
