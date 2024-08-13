@@ -1,0 +1,123 @@
+{% extends "layouts/import.html" %}
+
+{% block content %}
+<style>
+    body {
+        padding-top: 80px;
+        padding-bottom: 50px;
+    }
+    .dashboard-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .dashboard-section h4 {
+        margin-bottom: 15px;
+    }
+    .user-info, .statistics, .user-activity-graph, .system-overview, .recent-activities, .user-management {
+        margin-bottom: 30px;
+    }
+</style>
+
+<div class="container dashboard-container">
+    <div class="text-center mb-4">
+        <h2>Admin Dashboard</h2>
+    </div>
+
+    <div class="user-info dashboard-section">
+        <h4>User Information</h4>
+        <p><strong>Username:</strong> sample_admin</p>
+        <p><strong>Email:</strong> sample_admin@example.com</p>
+    </div>
+
+    <div class="system-overview dashboard-section">
+        <h4>System Overview</h4>
+        <canvas id="systemOverviewChart" width="400" height="200"></canvas>
+    </div>
+
+    <div class="statistics dashboard-section">
+        <h4>Statistics</h4>
+        <canvas id="statisticsChart" width="400" height="200"></canvas>
+    </div>
+
+    <div class="user-activity-graph dashboard-section">
+        <h4>User Activity Graph</h4>
+        <canvas id="activityGraph" width="400" height="200"></canvas>
+    </div>
+</div>
+
+{% include "layouts/admin/admin_collapsible_menu.html" %}
+
+<!-- Include the JavaScript file -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const systemOverviewCtx = document.getElementById('systemOverviewChart').getContext('2d');
+    const systemOverviewChart = new Chart(systemOverviewCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Total Users', 'Total Videos', 'Total Signs Recognized'],
+            datasets: [{
+                label: 'System Overview',
+                data: [150, 500, 1200],
+                backgroundColor: ['rgba(75, 192, 192, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)'],
+                borderColor: ['rgba(75, 192, 192, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const statisticsCtx = document.getElementById('statisticsChart').getContext('2d');
+    const statisticsChart = new Chart(statisticsCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Videos Uploaded', 'Signs Recognized'],
+            datasets: [{
+                label: 'Statistics',
+                data: [10, 25],
+                backgroundColor: ['rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)'],
+                borderColor: ['rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const activityCtx = document.getElementById('activityGraph').getContext('2d');
+    const activityGraph = new Chart(activityCtx, {
+        type: 'line',
+        data: {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [{
+                label: 'User Activity',
+                data: [10, 20, 15, 30, 25, 35, 40],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

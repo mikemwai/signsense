@@ -1,0 +1,22 @@
+{% extends "layouts/import.html" %}
+
+{% block content %}
+<style>
+        body {
+            padding-top: 70px;
+        }
+</style>
+
+    <div class="container mt-5 d-flex justify-content-center">
+        <div class="text-center">
+            <h2>Profile Settings</h2>
+            <p>Welcome to Signsense! We are dedicated to making sign language recognition accessible to everyone.</p>
+            <p>Our team is passionate about leveraging technology to bridge communication gaps and build a more inclusive world.</p>
+        </div>
+    </div>
+
+    {% include "layouts/user/collapsible_menu.html" %}
+
+<!-- Include the JavaScript file -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

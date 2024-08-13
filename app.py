@@ -21,12 +21,22 @@ def authentication():
 
 @app.route('/model', methods=['GET'])
 def model():
-    return render_template('pages/model.html')
+    return render_template('pages/user_menu/model.html')
 
 
 @app.route('/user_dashboard', methods=['GET'])
 def user_dashboard():
-    return render_template('pages/user_dashboard.html')
+    return render_template('pages/user_menu/user_dashboard.html')
+
+
+@app.route('/admin_dashboard', methods=['GET'])
+def admin_dashboard():
+    return render_template('pages/admin_menu/admin_dashboard.html')
+
+
+@app.route('/manage_users', methods=['GET'])
+def manage_users():
+    return render_template('pages/admin_menu/manage_users.html')
 
 
 @app.route('/forget_password', methods=['GET'])
@@ -36,7 +46,7 @@ def forget_password():
 
 @app.route('/settings', methods=['GET'])
 def settings():
-    return render_template('pages/settings.html')
+    return render_template('pages/user_menu/settings.html')
 
 
 if __name__ == '__main__':

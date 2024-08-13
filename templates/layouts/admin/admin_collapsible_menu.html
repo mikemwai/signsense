@@ -1,0 +1,44 @@
+<!-- Collapsible Menu Button -->
+<button class="btn btn-primary menu-toggle" type="button" id="menuButton" style="position: absolute; left: 0; top: 78px; width: 100%; background-color: transparent; border: none; text-align: left; padding-left: 10px;">
+    <i class="fas fa-arrow-right" style="color: grey;"></i>
+</button>
+
+<!-- Collapsible Menu -->
+<div id="collapsibleMenu" class="collapse-menu" style="position: absolute; left: -260px; top: 75px; width: 200px; background-color: #343a40; z-index: 1030; transition: left 0.5s ease-in-out;">
+    <button class="btn btn-primary close-menu" type="button" id="closeMenuButton" style="background-color: #343a40; color: white; width: 20%; margin-left: 150px">
+        <i class="fas fa-times"></i>
+    </button>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user_dashboard') }}" style="color: white;">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('model') }}" style="color: white;">
+                            <i class="fas fa-cogs"></i> Model
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('settings') }}" style="color: white;">
+                            <i class="fas fa-user-cog"></i> Profile Settings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('manage_users') }}" style="color: white;">
+                            <i class="fas fa-users"></i> User Management
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('authentication') }}" style="color: red;">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
