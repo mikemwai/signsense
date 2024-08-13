@@ -14,9 +14,21 @@ def about():
     return render_template('pages/about.html')
 
 
+# Authentication Routes
 @app.route('/authentication', methods=['GET'])
 def authentication():
     return render_template('pages/authentication.html')
+
+
+@app.route('/forget_password', methods=['GET'])
+def forget_password():
+    return render_template('pages/forget_password.html')
+
+
+# User Menu Routes
+@app.route('/user_dashboard', methods=['GET'])
+def user_dashboard():
+    return render_template('pages/user_menu/user_dashboard.html')
 
 
 @app.route('/model', methods=['GET'])
@@ -24,11 +36,12 @@ def model():
     return render_template('pages/user_menu/model.html')
 
 
-@app.route('/user_dashboard', methods=['GET'])
-def user_dashboard():
-    return render_template('pages/user_menu/user_dashboard.html')
+@app.route('/settings', methods=['GET'])
+def settings():
+    return render_template('pages/user_menu/settings.html')
 
 
+# Admin Menu Routes
 @app.route('/admin_dashboard', methods=['GET'])
 def admin_dashboard():
     return render_template('pages/admin_menu/admin_dashboard.html')
@@ -37,16 +50,6 @@ def admin_dashboard():
 @app.route('/manage_users', methods=['GET'])
 def manage_users():
     return render_template('pages/admin_menu/manage_users.html')
-
-
-@app.route('/forget_password', methods=['GET'])
-def forget_password():
-    return render_template('pages/forget_password.html')
-
-
-@app.route('/settings', methods=['GET'])
-def settings():
-    return render_template('pages/user_menu/settings.html')
 
 
 if __name__ == '__main__':
