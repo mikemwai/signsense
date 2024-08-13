@@ -34,5 +34,10 @@ def forget_password():
     return render_template('pages/forget_password.html')
 
 
+@app.route('/settings', methods=['GET'])
+def settings():
+    return render_template('pages/settings.html')
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

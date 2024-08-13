@@ -2,21 +2,71 @@
 
 {% block content %}
 <style>
-        body {
-            padding-top: 70px;
-        }
+    body {
+        padding-top: 80px;
+        padding-bottom: 50px;
+    }
+    .user-info, .statistics, .user-activity-graph {
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .user-info h4, .statistics h4, .user-activity-graph h4 {
+        margin-bottom: 15px;
+    }
 </style>
 
-    <div class="container mt-5 d-flex justify-content-center">
-        <div class="text-center">
-            <h2>User Dashboard</h2>
-            <p>Welcome to Signsense! We are dedicated to making sign language recognition accessible to everyone.</p>
-            <p>Our team is passionate about leveraging technology to bridge communication gaps and build a more inclusive world.</p>
-        </div>
+<div class="container dashboard-container">
+    <div class="text-center mb-4">
+        <h2>User Dashboard</h2>
     </div>
 
-    {% include "layouts/collapsible_menu.html" %}
+    <div class="user-info">
+        <h4>User Information</h4>
+        <p><strong>Username:</strong> sample_user</p>
+        <p><strong>Email:</strong> sample_user@example.com</p>
+    </div>
+
+    <div class="statistics">
+        <h4>Statistics</h4>
+        <p><strong>Videos Uploaded:</strong> 10</p>
+        <p><strong>Signs Recognized:</strong> 25</p>
+    </div>
+
+    <div class="user-activity-graph">
+        <h4>User Activity Graph</h4>
+        <canvas id="activityGraph" width="400" height="200"></canvas>
+    </div>
+</div>
+
+{% include "layouts/collapsible_menu.html" %}
 
 <!-- Include the JavaScript file -->
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('activityGraph').getContext('2d');
+    const activityGraph = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            datasets: [{
+                label: 'User Activity',
+                data: [10, 20, 15, 30, 25, 35, 40],
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                fill: false
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

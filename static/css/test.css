@@ -157,6 +157,14 @@
     transition: left 0.5s ease-in-out;
 }
 
+.collapse-menu .navbar-nav {
+    text-align: left;
+}
+
+.collapse-menu .nav-item {
+    text-align: left;
+}
+
 .menu-toggle i, .close-menu i {
     font-size: 20px;
     color: white;
@@ -204,7 +212,6 @@ html, body {
     bottom: 20px;
 }
 
-
 .card {
     transition: transform 0.2s;
 }
@@ -248,9 +255,6 @@ html, body {
         font-size: 1rem; /* Adjust font size for smaller screens */
         padding: 5px 50px 5px 50px;
     }
-    /*.collapse-menu {*/
-    /*    height: auto; !* Adjust height for mobile screens *!*/
-    /*}*/
     .recognition-portal{
         padding-top: 35px;
         padding-bottom: 35px;
