@@ -27,6 +27,9 @@
                         <a class="nav-link {% if request.endpoint == 'about' %}active{% endif %}" href="{{ url_for('about') }}" style="color: white;">About</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'about' %}active{% endif %}" href="{{ url_for('resources') }}" style="color: white;">Resources</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'authentication' %}active{% endif %}" href="{{ url_for('authentication') }}" style="color: white;">
                             <i class="fas fa-user"></i>
                         </a>
@@ -43,7 +46,6 @@
 
     <footer class="navbar navbar-dark bg-dark" style="position: fixed; left: 0; bottom: 0; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px 0;">
         <p style="color: white;">&copy; <span id="currentYear"></span> Signsense. All rights reserved.</p>
-        <!--<p><a href="/privacy" class="text-white">Privacy Policy</a> | <a href="/terms" class="text-white">Terms of Service</a></p>-->
     </footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

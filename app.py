@@ -13,19 +13,23 @@ def index():
 def about():
     return render_template('pages/about.html')
 
+@app.route('/resources', methods=['GET'])
+def resources():
+    return render_template('pages/resources.html')
 
-# Authentication Routes
+
+######### Authentication Routes #########
 @app.route('/authentication', methods=['GET'])
 def authentication():
-    return render_template('pages/authentication.html')
+    return render_template('pages/authentication/authentication.html')
 
 
 @app.route('/forget_password', methods=['GET'])
 def forget_password():
-    return render_template('pages/forget_password.html')
+    return render_template('pages/authentication/forget_password.html')
 
 
-# User Menu Routes
+############# User Menu Routes ##################
 @app.route('/user_dashboard', methods=['GET'])
 def user_dashboard():
     return render_template('pages/user_menu/user_dashboard.html')
@@ -41,7 +45,7 @@ def settings():
     return render_template('pages/user_menu/settings.html')
 
 
-# Admin Menu Routes
+############### Admin Menu Routes ##############
 @app.route('/admin_dashboard', methods=['GET'])
 def admin_dashboard():
     return render_template('pages/admin_menu/admin_dashboard.html')
