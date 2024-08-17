@@ -5,13 +5,40 @@
         body {
             padding-top: 70px;
         }
+        .card:hover{
+            transform: none;
+        }
 </style>
 
     <div class="container mt-5 d-flex justify-content-center">
-        <div class="text-center">
-            <h2>Profile Settings</h2>
-            <p>Welcome to Signsense! We are dedicated to making sign language recognition accessible to everyone.</p>
-            <p>Our team is passionate about leveraging technology to bridge communication gaps and build a more inclusive world.</p>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Profile Settings</h2>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="fname">First Name</label>
+                            <input type="text" class="form-control" id="fname" placeholder="Enter your first name">
+                        </div>
+                        <div class="form-group">
+                            <label for="lname">Last Name</label>
+                            <input type="text" class="form-control" id="lname" placeholder="Enter your last name">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email address</label>
+                            <input type="email" class="form-control" id="email" placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password" placeholder="Enter new password">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/user_menu/settings'">Cancel</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
