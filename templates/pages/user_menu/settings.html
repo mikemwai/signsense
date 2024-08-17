@@ -2,47 +2,55 @@
 
 {% block content %}
 <style>
-        body {
-            padding-top: 70px;
-        }
-        .card:hover{
-            transform: none;
-        }
+    body {
+        padding-top: 70px;
+    }
+    .card:hover {
+        transform: none;
+    }
 </style>
 
-    <div class="container mt-5 d-flex justify-content-center">
-        <div class="col-md-9">
-            <div class="card">
-                <div class="card-header">
-                    <h2>Profile Settings</h2>
-                </div>
-                <div class="card-body">
-                    <form>
-                        <div class="form-group">
-                            <label for="fname">First Name</label>
-                            <input type="text" class="form-control" id="fname" placeholder="Enter your first name">
-                        </div>
-                        <div class="form-group">
-                            <label for="lname">Last Name</label>
-                            <input type="text" class="form-control" id="lname" placeholder="Enter your last name">
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email address</label>
-                            <input type="email" class="form-control" id="email" placeholder="Enter your email">
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" placeholder="Enter new password">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/user_menu/settings'">Cancel</button>
-                    </form>
-                </div>
+<div class="container mt-5 d-flex justify-content-center">
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h2>Profile Settings</h2>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="form-group">
+                        <label for="fname">First Name</label>
+                        <input type="text" class="form-control" id="fname" placeholder="Enter your first name">
+                    </div>
+                    <div class="form-group">
+                        <label for="lname">Last Name</label>
+                        <input type="text" class="form-control" id="lname" placeholder="Enter your last name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control" id="email" placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="text" class="form-control" id="phone" placeholder="Enter your phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Enter new password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='/user_menu/settings'">Cancel</button>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
+{% if current_user.is_admin %}
+    {% include "layouts/admin/admin_collapsible_menu.html" %}
+{% else %}
     {% include "layouts/user/collapsible_menu.html" %}
+{% endif %}
 
 <!-- Include the JavaScript file -->
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>

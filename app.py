@@ -37,12 +37,24 @@ def user_dashboard():
 
 @app.route('/model', methods=['GET'])
 def model():
-    return render_template('pages/user_menu/model.html')
+    # Simulate current_user object
+    class User:
+        def __init__(self, is_admin):
+            self.is_admin = is_admin
+
+    current_user = User(is_admin=True)  # Change to False to simulate a regular user
+    return render_template('pages/user_menu/model.html', current_user=current_user)
 
 
-@app.route('/settings', methods=['GET'])
+@app.route('/settings')
 def settings():
-    return render_template('pages/user_menu/settings.html')
+    # Simulate current_user object
+    class User:
+        def __init__(self, is_admin):
+            self.is_admin = is_admin
+
+    current_user = User(is_admin=True)  # Change to False to simulate a regular user
+    return render_template('pages/user_menu/settings.html', current_user=current_user)
 
 
 ############### Admin Menu Routes ##############

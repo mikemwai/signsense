@@ -2,21 +2,188 @@
 
 {% block content %}
 <style>
-        body {
-            padding-top: 70px;
-        }
+    body {
+        padding-top: 70px;
+    }
+    .table-container {
+        margin-top: 20px;
+    }
+    .table th, .table td {
+        text-align: center;
+    }
+    .action-icons {
+        cursor: pointer;
+    }
+    .add-icon {
+        font-size: 24px;
+        cursor: pointer;
+        margin-bottom: 10px;
+        color: blue; /* Color for Add icon */
+    }
+    .edit-icon {
+        color: green; /* Color for Edit icon */
+    }
+    .delete-icon {
+        color: red; /* Color for Delete icon */
+    }
 </style>
 
-    <div class="container mt-5 d-flex justify-content-center">
-        <div class="text-center">
-            <h2>User Management</h2>
-            <p>Welcome to Signsense! We are dedicated to making sign language recognition accessible to everyone.</p>
-            <p>Our team is passionate about leveraging technology to bridge communication gaps and build a more inclusive world.</p>
-        </div>
+<div class="container mt-5">
+    <div class="text-center">
+        <h2>User Management</h2>
     </div>
 
-    {% include "layouts/admin/admin_collapsible_menu.html" %}
+    <div class="text-right">
+        <i class="fas fa-plus add-icon" data-toggle="modal" data-target="#addUserModal"></i>
+    </div>
+
+    <div class="table-container">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Password</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set users = [
+                    {'id': 1, 'first_name': 'John', 'last_name': 'Doe', 'email': 'john.doe@example.com', 'phone': '123-456-7890', 'password': 'encrypted_password1'},
+                    {'id': 2, 'first_name': 'Jane', 'last_name': 'Smith', 'email': 'jane.smith@example.com', 'phone': '234-567-8901', 'password': 'encrypted_password2'},
+                    {'id': 3, 'first_name': 'Alice', 'last_name': 'Johnson', 'email': 'alice.johnson@example.com', 'phone': '345-678-9012', 'password': 'encrypted_password3'}
+                ] %}
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.first_name }}</td>
+                    <td>{{ user.last_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.phone }}</td>
+                    <td>{{ user.password }}</td>
+                    <td>
+                        <i class="fas fa-edit action-icons edit-icon" onclick="openEditModal({{ user.id }}, '{{ user.first_name }}', '{{ user.last_name }}', '{{ user.email }}', '{{ user.phone }}')"></i>
+                        <i class="fas fa-trash action-icons delete-icon" onclick="deleteUser({{ user.id }})"></i>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label for="newFname">First Name</label>
+                        <input type="text" class="form-control" id="newFname" placeholder="Enter first name">
+                    </div>
+                    <div class="form-group">
+                        <label for="newLname">Last Name</label>
+                        <input type="text" class="form-control" id="newLname" placeholder="Enter last name">
+                    </div>
+                    <div class="form-group">
+                        <label for="newEmail">Email</label>
+                        <input type="email" class="form-control" id="newEmail" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPhone">Phone Number</label>
+                        <input type="text" class="form-control" id="newPhone" placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Password</label>
+                        <input type="password" class="form-control" id="newPassword" placeholder="Enter password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="form-group">
+                        <label for="editFname">First Name</label>
+                        <input type="text" class="form-control" id="editFname" placeholder="Enter first name">
+                    </div>
+                    <div class="form-group">
+                        <label for="editLname">Last Name</label>
+                        <input type="text" class="form-control" id="editLname" placeholder="Enter last name">
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email</label>
+                        <input type="email" class="form-control" id="editEmail" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label for="editPhone">Phone Number</label>
+                        <input type="text" class="form-control" id="editPhone" placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="editPassword">Password</label>
+                        <input type="password" class="form-control" id="editPassword" placeholder="Enter password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "layouts/admin/admin_collapsible_menu.html" %}
 
 <!-- Include the JavaScript file -->
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+    function openEditModal(id, firstName, lastName, email, phone) {
+        document.getElementById('editUserId').value = id;
+        document.getElementById('editFname').value = firstName;
+        document.getElementById('editLname').value = lastName;
+        document.getElementById('editEmail').value = email;
+        document.getElementById('editPhone').value = phone;
+        $('#editUserModal').modal('show');
+    }
+
+    function editUser(userId) {
+        // Implement edit user functionality
+    }
+
+    function deleteUser(userId) {
+        // Implement delete user functionality
+    }
+
+    document.getElementById('addUserForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        // Implement add user functionality
+    });
+
+    document.getElementById('editUserForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        // Implement save changes functionality
+    });
+</script>
 {% endblock %}
