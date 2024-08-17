@@ -1,0 +1,149 @@
+{% extends "layouts/import.html" %}
+
+{% block content %}
+<style>
+    body {
+        padding-top: 30px;
+        padding-bottom: 60px;
+    }
+    .container {
+        max-width: 800px;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .btn-primary {
+        width: 100%;
+    }
+    .list-group-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .icon-group {
+        margin-left: auto;
+        display: flex;
+        gap: 10px;
+    }
+    .icon-group i {
+        cursor: pointer;
+    }
+    .notification {
+        display: none;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+    .notification.success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .notification.error {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h2>Resource Management</h2>
+    </div>
+    <div id="notification" class="notification"></div>
+    <form id="uploadResourceForm" enctype="multipart/form-data" class="mb-4">
+        <div class="form-group">
+            <label for="resourceName">Resource Name</label>
+            <input type="text" class="form-control" id="resourceName" placeholder="Enter resource name">
+        </div>
+        <div class="form-group">
+            <label for="resourceFile">Upload Resource</label>
+            <input type="file" class="form-control" id="resourceFile" accept=".pdf,.doc,.docx">
+        </div>
+        <button type="submit" class="btn btn-primary">Upload Resource</button>
+    </form>
+    <h3 class="mb-3">Resources List</h3>
+    <ul id="resourcesList" class="list-group">
+        <!-- Resources will be dynamically added here -->
+    </ul>
+</div>
+
+<!-- Collapsible Menu -->
+{% include "layouts/admin/admin_collapsible_menu.html" %}
+
+<!-- Include the JavaScript file -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+    function showNotification(message, type) {
+        const notification = document.getElementById('notification');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        notification.style.display = 'block';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+
+    document.getElementById('uploadResourceForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData();
+        formData.append('resourceFile', document.getElementById('resourceFile').files[0]);
+
+        fetch('/upload_resource', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Resource uploaded successfully!', 'success');
+                loadResources();
+            } else {
+                showNotification(`Error uploading resource: ${data.error}`, 'error');
+            }
+        })
+        .catch(error => showNotification(`Error uploading resource: ${error}`, 'error'));
+    });
+
+    function loadResources() {
+        fetch('/list_resources')
+            .then(response => response.json())
+            .then(data => {
+                const resourcesList = document.getElementById('resourcesList');
+                resourcesList.innerHTML = '';
+                data.forEach(resource => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'list-group-item';
+                    listItem.innerHTML = `
+                        ${resource}
+                        <span class="icon-group">
+                            <i onclick="deleteResource('${resource}')" class="fas fa-trash text-danger"></i>
+                        </span>
+                    `;
+                    resourcesList.appendChild(listItem);
+                });
+            })
+            .catch(error => showNotification(`Error loading resources: ${error}`, 'error'));
+    }
+
+    function deleteResource(filename) {
+        const formData = new FormData();
+        formData.append('filename', filename);
+
+        fetch('/delete_resource', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Resource deleted successfully!', 'success');
+                loadResources();
+            } else {
+                showNotification(`Error deleting resource: ${data.error}`, 'error');
+            }
+        })
+        .catch(error => showNotification(`Error deleting resource: ${error}`, 'error'));
+    }
+
+    window.onload = loadResources;
+</script>
+{% endblock %}

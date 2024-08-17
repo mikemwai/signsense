@@ -56,25 +56,33 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <ul class="list-group">
-                <li class="list-group-item">
-                    <a href="{{ url_for('static', filename='documents/KSL Notes.pdf') }}" target="_blank"><i class="fas fa-file-pdf"></i>KSL Notes</a>
-                </li>
-                <li class="list-group-item">
-                    <a href="{{ url_for('static', filename='documents/Family and verbs.pdf') }}" target="_blank"><i class="fas fa-file-pdf"></i>Family and Verbs</a>
-                </li>
-                <li class="list-group-item">
-                    <a href="{{ url_for('static', filename='documents/Signs of Religion.pdf') }}" target="_blank"><i class="fas fa-file-pdf"></i>Signs of Religion</a>
-                </li>
-                <li class="list-group-item">
-                    <a href="{{ url_for('static', filename='documents/Mental processes and Politics Notes.pdf') }}" target="_blank"><i class="fas fa-file-pdf"></i>Mental processes and Politics Notes</a>
-                </li>
-                <li class="list-group-item">
-                    <a href="{{ url_for('static', filename='documents/Emotions, Connecting and related words signs.pdf') }}" target="_blank"><i class="fas fa-file-pdf"></i>Emotions, Connecting and Related Words Signs</a>
-                </li>
+            <ul id="resourcesList" class="list-group">
+                <!-- Resources will be dynamically added here -->
             </ul>
         </div>
     </div>
 </div>
+
+<script>
+    function loadResources() {
+        fetch('/list_resources')
+            .then(response => response.json())
+            .then(data => {
+                const resourcesList = document.getElementById('resourcesList');
+                resourcesList.innerHTML = '';
+                data.forEach(resource => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'list-group-item';
+                    listItem.innerHTML = `
+                        <a href="/static/documents/${resource}" target="_blank"><i class="fas fa-file-pdf"></i>${resource}</a>
+                    `;
+                    resourcesList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error loading resources:', error));
+    }
+
+    window.onload = loadResources;
+</script>
 
 {% endblock %}

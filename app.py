@@ -1,7 +1,8 @@
 import os
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = os.path.join(app.static_folder, 'documents')
 
 
 @app.route('/', methods=['GET'])
@@ -67,6 +68,36 @@ def admin_dashboard():
 def manage_users():
     return render_template('pages/admin_menu/manage_users.html')
 
+@app.route('/manage_resources', methods=['GET'])
+def manage_resources():
+    return render_template('pages/admin_menu/manage_resources.html')
+
+@app.route('/list_resources', methods=['GET'])
+def list_resources():
+    documents_path = os.path.join(app.static_folder, 'documents')
+    resources = os.listdir(documents_path)
+    return jsonify(resources)
+
+@app.route('/upload_resource', methods=['POST'])
+def upload_resource():
+    if 'resourceFile' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['resourceFile']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if file:
+        filename = file.filename
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return jsonify({'success': 'File uploaded successfully'}), 200
+
+@app.route('/delete_resource', methods=['POST'])
+def delete_resource():
+    filename = request.form['filename']
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        return jsonify({'success': 'File deleted successfully'}), 200
+    return jsonify({'error': 'File not found'}), 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
