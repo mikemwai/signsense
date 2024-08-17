@@ -4,13 +4,16 @@
 <div class="container mt-2" style="padding-top: 60px; padding-bottom: 60px">
     <!-- Login Form -->
     <div id="loginForm">
-        <form>
+        <form method="POST" action="/login">
             <h3 class="text-center" style="font-family: Arial, serif;">Welcome Back</h3><br>
+            {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
             <label for="emailLogin" style="font-family: Arial, serif;">Email Address</label>
-            <input type="email" placeholder="Enter email address" name="email" id="emailLogin">
+            <input type="email" placeholder="Enter email address" name="email" id="emailLogin" required>
 
             <label for="passwordLogin" style="font-family: Arial, serif;">Password</label>
-            <input type="password" placeholder="Enter your password" name="password" id="passwordLogin">
+            <input type="password" placeholder="Enter your password" name="password" id="passwordLogin" required>
 
             <a href="{{ url_for('forget_password') }}" class="forgot-password-link">Forgot Password?</a>
             <button type="submit" class="form-toggle-btn">Login</button>
@@ -42,22 +45,22 @@
     </div>
     <!-- Register Form -->
     <div id="registerForm" style="display:none;">
-        <form>
+        <form method="POST" action="/register">
             <h3 class="text-center" style="font-family: Arial, serif;">Create an Account</h3><br>
             <label for="fname" style="font-family: Arial, serif;">First Name</label>
-            <input type="text" placeholder="Enter your first name" name="fname">
+            <input type="text" placeholder="Enter your first name" name="fname" required>
 
             <label for="lname" style="font-family: Arial, serif;">Last Name</label>
-            <input type="text" placeholder="Enter your last name" name="lname">
+            <input type="text" placeholder="Enter your last name" name="lname" required>
 
             <label for="emailRegister" style="font-family: Arial, serif;">Email Address</label>
-            <input type="email" placeholder="Enter your email address" name="email">
+            <input type="email" placeholder="Enter your email address" name="email" required>
 
             <label for="phoneNoRegister" style="font-family: Arial, serif;">Phone Number</label>
-            <input type="number" placeholder="Enter your phone number" name="phone_no">
+            <input type="number" placeholder="Enter your phone number" name="phone_no" required>
 
             <label for="passwordRegister" style="font-family: Arial, serif;">Password</label>
-            <input type="password" placeholder="Enter your password" name="password">
+            <input type="password" placeholder="Enter your password" name="password" required>
 
             <button type="submit" class="form-toggle-btn">Register</button>
             <label class="paragraph" style="margin-top: 10px; text-align: center;">
@@ -79,12 +82,6 @@
         event.preventDefault();
         document.getElementById('registerForm').style.display = 'block';
         document.getElementById('loginForm').style.display = 'none';
-    });
-
-    // Corrected redirection to match Flask route
-    document.querySelector('#loginForm form').addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent the default form submission
-        window.location.href = '/user_dashboard'; // Redirect to the root, matching the Flask route for index
     });
 </script>
 

@@ -1,0 +1,20 @@
+# create_db.py
+from app import db
+from database.models import User
+from pymongo.errors import OperationFailure
+from werkzeug.security import generate_password_hash
+
+try:
+    # Create a sample user with hashed password and default privilege
+    user = User(
+        first_name="John",
+        last_name="Doe",
+        email="john.doe@example.com",
+        phone_no="1234567890",
+        password=generate_password_hash("password123"),
+        privilege="user"  # Default privilege
+    )
+    db.users.insert_one(user.to_dict())
+    print("User inserted successfully.")
+except OperationFailure as e:
+    print(f"Operation failed: {e.details['errmsg']}")
