@@ -70,6 +70,7 @@ def register():
     last_name = request.form['lname']
     email = request.form['email']
     phone_no = request.form['phone_no']
+    gender = request.form['gender']
     password = request.form['password']
 
     # Check if the user already exists
@@ -85,6 +86,7 @@ def register():
         "last_name": last_name,
         "email": email,
         "phone_no": phone_no,
+        "gender": gender,
         "password": hashed_password,
         "privilege": "user"
     }
@@ -150,6 +152,7 @@ def settings():
             "last_name": request.form.get('lname'),
             "email": request.form.get('email'),
             "phone_no": request.form.get('phone'),
+            "gender": request.form.get('gender'),
         }
         if request.form.get('password'):
             updated_data["password"] = generate_password_hash(request.form.get('password'))
@@ -187,6 +190,7 @@ def add_user():
     last_name = request.form['newLname']
     email = request.form['newEmail']
     phone_no = request.form['newPhone']
+    gender = request.form['newGender']
     privilege = request.form['newPrivilege']
     password = request.form['newPassword']
 
@@ -199,6 +203,7 @@ def add_user():
         "last_name": last_name,
         "email": email,
         "phone_no": phone_no,
+        "gender": gender,
         "privilege": privilege,
         "password": hashed_password
     }
@@ -218,6 +223,7 @@ def edit_user(user_id):
     last_name = request.form['editLname']
     email = request.form['editEmail']
     phone_no = request.form['editPhone']
+    gender = request.form['editGender']
     privilege = request.form['editPrivilege']
     password = request.form['editPassword']
 
@@ -227,6 +233,7 @@ def edit_user(user_id):
         "last_name": last_name,
         "email": email,
         "phone_no": phone_no,
+        "gender": gender,
         "privilege": privilege
     }
 

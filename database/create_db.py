@@ -11,6 +11,7 @@ try:
         last_name="Doe",
         email="john.doe@example.com",
         phone_no="1234567890",
+        gender="male",
         password=generate_password_hash("password123"),
         privilege="user"  # Default privilege
     )

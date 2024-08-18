@@ -4,6 +4,7 @@
 <style>
     body {
         padding-top: 30px;
+        padding-bottom: 60px;
     }
     .card:hover {
         transform: none;
@@ -41,6 +42,10 @@
                     <div class="form-group">
                         <label for="phone">Phone Number</label>
                         <input type="text" class="form-control" id="phone" name="phone" value="{{ current_user['phone_no'] }}" placeholder="Enter your phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <input type="text" class="form-control" id="gender" name="text" value="{{ current_user['gender'] }}" placeholder="Enter your gender">
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>

@@ -47,6 +47,9 @@
     {% if notification and notification.message %}
     <div class="alert alert-{{ notification.type }} notification">
         {{ notification.message }}
+        <button type="button" class="close" aria-label="Close" onclick="removeNotification(this)">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
     {% endif %}
 
@@ -60,6 +63,7 @@
                     <th>Last Name</th>
                     <th>Email</th>
                     <th>Phone Number</th>
+                    <th>Gender</th>
                     <th>Privilege</th>
                     <th>Actions</th>
                 </tr>
@@ -72,9 +76,10 @@
                     <td>{{ user.last_name }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.phone_no }}</td>
+                    <td>{{ user.gender }}</td>
                     <td>{{ user.privilege }}</td>
                     <td>
-                        <i class="fas fa-edit action-icons edit-icon" onclick="openEditModal('{{ user._id }}', '{{ user.first_name }}', '{{ user.last_name }}', '{{ user.email }}', '{{ user.phone_no }}', '{{ user.privilege }}')"></i>
+                        <i class="fas fa-edit action-icons edit-icon" onclick="openEditModal('{{ user._id }}', '{{ user.first_name }}', '{{ user.last_name }}', '{{ user.email }}', '{{ user.phone_no }}', '{{ user.gender }}', '{{ user.privilege }}')"></i>
                         <i class="fas fa-trash action-icons delete-icon" onclick="deleteUser('{{ user._id }}')"></i>
                     </td>
                 </tr>
@@ -111,6 +116,10 @@
                     <div class="form-group">
                         <label for="newPhone">Phone Number</label>
                         <input type="text" class="form-control" id="newPhone" name="newPhone" placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="newGender">Gender</label>
+                        <input type="text" class="form-control" id="newGender" name="newGender" placeholder="Enter gender">
                     </div>
                     <div class="form-group">
                         <label for="newPrivilege">Privilege</label>
@@ -157,6 +166,10 @@
                         <input type="text" class="form-control" id="editPhone" name="editPhone" placeholder="Enter phone number">
                     </div>
                     <div class="form-group">
+                        <label for="editGender">Gender</label>
+                        <input type="text" class="form-control" id="editGender" name="editGender" placeholder="Enter gender">
+                    </div>
+                    <div class="form-group">
                         <label for="editPrivilege">Privilege</label>
                         <input type="text" class="form-control" id="editPrivilege" name="editPrivilege" placeholder="Enter privilege">
                     </div>
@@ -176,13 +189,33 @@
 <!-- Include the JavaScript file -->
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 <script>
-    function openEditModal(id, firstName, lastName, email, phone, privilege) {
+    function removeNotification(button) {
+        const notificationDiv = button.parentElement;
+        notificationDiv.remove();
+    }
+
+   window.onload = function() {
+        const notification = {{ notification|tojson }};
+        if (notification && notification.message) {
+            // Check if a notification already exists
+            if (!document.querySelector('.notification')) {
+                const notificationDiv = document.createElement('div');
+                notificationDiv.className = `alert alert-${notification.type} notification`;
+                notificationDiv.innerHTML = `${notification.message} <button type="button" class="close" aria-label="Close" onclick="removeNotification(this)"><span aria-hidden="true">&times;</span></button>`;
+                document.body.prepend(notificationDiv);
+                setTimeout(() => notificationDiv.remove(), 2000);
+            }
+        }
+   }
+
+    function openEditModal(id, firstName, lastName, email, phone, gender, privilege) {
         document.getElementById('editUserForm').action = `/edit_user/${id}`;
         document.getElementById('editUserId').value = id;
         document.getElementById('editFname').value = firstName;
         document.getElementById('editLname').value = lastName;
         document.getElementById('editEmail').value = email;
         document.getElementById('editPhone').value = phone;
+        document.getElementById('editGender').value = gender;
         document.getElementById('editPrivilege').value = privilege;
         $('#editUserModal').modal('show');
     }
@@ -237,16 +270,6 @@
         .catch(() => {
             alert('Failed to delete user'); // Display an alert notification on error
         });
-    }
-
-    window.onload = function() {
-        const notification = {{ notification|tojson }};
-        if (notification && notification.message) {
-            const notificationDiv = document.createElement('div');
-            notificationDiv.className = `alert alert-${notification.type} notification`;
-            notificationDiv.innerText = notification.message;
-            document.body.prepend(notificationDiv);
-        }
     }
 </script>
 
