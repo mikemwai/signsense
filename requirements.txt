@@ -3,3 +3,6 @@ pymongo~=4.8.0
 dnspython
 Werkzeug~=3.0.3
 python-dotenv
+Flask-OAuthlib
+authlib
+requests
