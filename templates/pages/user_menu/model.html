@@ -36,7 +36,7 @@
     </center><br><br>
 </div>
 
-{% if current_user.is_admin %}
+{% if current_user.privilege == 'admin' %}
     {% include "layouts/admin/admin_collapsible_menu.html" %}
 {% else %}
     {% include "layouts/user/collapsible_menu.html" %}

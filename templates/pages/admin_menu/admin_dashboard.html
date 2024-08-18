@@ -28,8 +28,9 @@
 
     <div class="user-info dashboard-section">
         <h4>User Information</h4>
-        <p><strong>Username:</strong> sample_admin</p>
-        <p><strong>Email:</strong> sample_admin@example.com</p>
+        <p><strong>Username:</strong> {{ user['first_name'] }} {{ user['last_name'] }}</p>
+        <p><strong>Email:</strong> {{ user['email'] }}</p>
+        <p><strong>Phone Number:</strong> {{ user['phone_no'] }}</p>
     </div>
 
     <div class="system-overview dashboard-section">

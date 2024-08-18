@@ -14,17 +14,24 @@
     .action-icons {
         cursor: pointer;
     }
-    .add-icon {
-        font-size: 24px;
+    .add-button {
+        font-size: 16px;
         cursor: pointer;
         margin-bottom: 10px;
-        color: blue; /* Color for Add icon */
+        color: white;
+        background-color: darkturquoise; /* Color for Add button */
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
     }
     .edit-icon {
         color: green; /* Color for Edit icon */
     }
     .delete-icon {
         color: red; /* Color for Delete icon */
+    }
+    .notification {
+        margin-top: 20px;
     }
 </style>
 
@@ -34,10 +41,17 @@
     </div>
 
     <div class="text-right">
-        <i class="fas fa-plus add-icon" data-toggle="modal" data-target="#addUserModal"></i>
+        <button class="add-button" data-toggle="modal" data-target="#addUserModal">Add New User</button>
     </div>
 
+    {% if notification and notification.message %}
+    <div class="alert alert-{{ notification.type }} notification">
+        {{ notification.message }}
+    </div>
+    {% endif %}
+
     <div class="table-container">
+        <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search users...">
         <table class="table table-bordered">
             <thead class="thead-dark">
                 <tr>
@@ -46,27 +60,22 @@
                     <th>Last Name</th>
                     <th>Email</th>
                     <th>Phone Number</th>
-                    <th>Password</th>
+                    <th>Privilege</th>
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                {% set users = [
-                    {'id': 1, 'first_name': 'John', 'last_name': 'Doe', 'email': 'john.doe@example.com', 'phone': '123-456-7890', 'password': 'encrypted_password1'},
-                    {'id': 2, 'first_name': 'Jane', 'last_name': 'Smith', 'email': 'jane.smith@example.com', 'phone': '234-567-8901', 'password': 'encrypted_password2'},
-                    {'id': 3, 'first_name': 'Alice', 'last_name': 'Johnson', 'email': 'alice.johnson@example.com', 'phone': '345-678-9012', 'password': 'encrypted_password3'}
-                ] %}
+            <tbody id="userTableBody">
                 {% for user in users %}
-                <tr>
-                    <td>{{ user.id }}</td>
+                <tr data-user-id="{{ user._id }}">
+                    <td>{{ user._id }}</td>
                     <td>{{ user.first_name }}</td>
                     <td>{{ user.last_name }}</td>
                     <td>{{ user.email }}</td>
-                    <td>{{ user.phone }}</td>
-                    <td>{{ user.password }}</td>
+                    <td>{{ user.phone_no }}</td>
+                    <td>{{ user.privilege }}</td>
                     <td>
-                        <i class="fas fa-edit action-icons edit-icon" onclick="openEditModal({{ user.id }}, '{{ user.first_name }}', '{{ user.last_name }}', '{{ user.email }}', '{{ user.phone }}')"></i>
-                        <i class="fas fa-trash action-icons delete-icon" onclick="deleteUser({{ user.id }})"></i>
+                        <i class="fas fa-edit action-icons edit-icon" onclick="openEditModal('{{ user._id }}', '{{ user.first_name }}', '{{ user.last_name }}', '{{ user.email }}', '{{ user.phone_no }}', '{{ user.privilege }}')"></i>
+                        <i class="fas fa-trash action-icons delete-icon" onclick="deleteUser('{{ user._id }}')"></i>
                     </td>
                 </tr>
                 {% endfor %}
@@ -86,26 +95,30 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="addUserForm">
+                <form action="/add_user" method="POST">
                     <div class="form-group">
                         <label for="newFname">First Name</label>
-                        <input type="text" class="form-control" id="newFname" placeholder="Enter first name">
+                        <input type="text" class="form-control" id="newFname" name="newFname" placeholder="Enter first name">
                     </div>
                     <div class="form-group">
                         <label for="newLname">Last Name</label>
-                        <input type="text" class="form-control" id="newLname" placeholder="Enter last name">
+                        <input type="text" class="form-control" id="newLname" name="newLname" placeholder="Enter last name">
                     </div>
                     <div class="form-group">
                         <label for="newEmail">Email</label>
-                        <input type="email" class="form-control" id="newEmail" placeholder="Enter email">
+                        <input type="email" class="form-control" id="newEmail" name="newEmail" placeholder="Enter email">
                     </div>
                     <div class="form-group">
                         <label for="newPhone">Phone Number</label>
-                        <input type="text" class="form-control" id="newPhone" placeholder="Enter phone number">
+                        <input type="text" class="form-control" id="newPhone" name="newPhone" placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPrivilege">Privilege</label>
+                        <input type="text" class="form-control" id="newPrivilege" name="newPrivilege" placeholder="Enter privilege">
                     </div>
                     <div class="form-group">
                         <label for="newPassword">Password</label>
-                        <input type="password" class="form-control" id="newPassword" placeholder="Enter password">
+                        <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Enter password">
                     </div>
                     <button type="submit" class="btn btn-primary">Add User</button>
                 </form>
@@ -125,27 +138,31 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="editUserForm">
-                    <input type="hidden" id="editUserId">
+                <form action="" method="POST" id="editUserForm">
+                    <input type="hidden" id="editUserId" name="editUserId">
                     <div class="form-group">
                         <label for="editFname">First Name</label>
-                        <input type="text" class="form-control" id="editFname" placeholder="Enter first name">
+                        <input type="text" class="form-control" id="editFname" name="editFname" placeholder="Enter first name">
                     </div>
                     <div class="form-group">
                         <label for="editLname">Last Name</label>
-                        <input type="text" class="form-control" id="editLname" placeholder="Enter last name">
+                        <input type="text" class="form-control" id="editLname" name="editLname" placeholder="Enter last name">
                     </div>
                     <div class="form-group">
                         <label for="editEmail">Email</label>
-                        <input type="email" class="form-control" id="editEmail" placeholder="Enter email">
+                        <input type="email" class="form-control" id="editEmail" name="editEmail" placeholder="Enter email">
                     </div>
                     <div class="form-group">
                         <label for="editPhone">Phone Number</label>
-                        <input type="text" class="form-control" id="editPhone" placeholder="Enter phone number">
+                        <input type="text" class="form-control" id="editPhone" name="editPhone" placeholder="Enter phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="editPrivilege">Privilege</label>
+                        <input type="text" class="form-control" id="editPrivilege" name="editPrivilege" placeholder="Enter privilege">
                     </div>
                     <div class="form-group">
                         <label for="editPassword">Password</label>
-                        <input type="password" class="form-control" id="editPassword" placeholder="Enter password">
+                        <input type="password" class="form-control" id="editPassword" name="editPassword" placeholder="Enter password">
                     </div>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                 </form>
@@ -159,31 +176,78 @@
 <!-- Include the JavaScript file -->
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 <script>
-    function openEditModal(id, firstName, lastName, email, phone) {
+    function openEditModal(id, firstName, lastName, email, phone, privilege) {
+        document.getElementById('editUserForm').action = `/edit_user/${id}`;
         document.getElementById('editUserId').value = id;
         document.getElementById('editFname').value = firstName;
         document.getElementById('editLname').value = lastName;
         document.getElementById('editEmail').value = email;
         document.getElementById('editPhone').value = phone;
+        document.getElementById('editPrivilege').value = privilege;
         $('#editUserModal').modal('show');
     }
 
-    function editUser(userId) {
-        // Implement edit user functionality
-    }
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        var input = document.getElementById('searchInput');
+        var filter = input.value.toLowerCase();
+        var tableBody = document.getElementById('userTableBody');
+        var rows = tableBody.getElementsByTagName('tr');
 
-    function deleteUser(userId) {
-        // Implement delete user functionality
-    }
+        for (var i = 0; i < rows.length; i++) {
+            var cells = rows[i].getElementsByTagName('td');
+            var match = false;
+            for (var j = 0; j < cells.length; j++) {
+                if (cells[j].innerText.toLowerCase().indexOf(filter) > -1) {
+                    match = true;
+                    break;
+                }
+            }
+            rows[i].style.display = match ? '' : 'none';
+        }
+    });
 
     document.getElementById('addUserForm').addEventListener('submit', function(event) {
         event.preventDefault();
-        // Implement add user functionality
+        const formData = new FormData(event.target);
+        fetch('/add_user', {
+            method: 'POST',
+            body: formData
+        })
+        .then(() => {
+            document.getElementById('notification').innerHTML = '<div class="alert alert-success">User added successfully</div>';
+            setTimeout(() => location.reload(), 2000);
+        })
+        .catch(() => {
+            document.getElementById('notification').innerHTML = '<div class="alert alert-danger">Failed to add user</div>';
+        });
     });
 
-    document.getElementById('editUserForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-        // Implement save changes functionality
-    });
+    function deleteUser(userId) {
+        fetch(`/delete_user/${userId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.type === 'success') {
+                location.reload(); // Refresh the page to reflect changes
+            } else {
+                alert('Failed to delete user'); // Display an alert notification on error
+            }
+        })
+        .catch(() => {
+            alert('Failed to delete user'); // Display an alert notification on error
+        });
+    }
+
+    window.onload = function() {
+        const notification = {{ notification|tojson }};
+        if (notification && notification.message) {
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = `alert alert-${notification.type} notification`;
+            notificationDiv.innerText = notification.message;
+            document.body.prepend(notificationDiv);
+        }
+    }
 </script>
+
 {% endblock %}

@@ -17,36 +17,43 @@
                 <h2>Profile Settings</h2>
             </div>
             <div class="card-body">
-                <form>
+                {% if notification %}
+                <div class="alert alert-{{ notification.type }} alert-dismissible fade show" role="alert">
+                    {{ notification.message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endif %}
+                <form method="POST">
                     <div class="form-group">
                         <label for="fname">First Name</label>
-                        <input type="text" class="form-control" id="fname" placeholder="Enter your first name">
+                        <input type="text" class="form-control" id="fname" name="fname" value="{{ current_user['first_name'] }}" placeholder="Enter your first name">
                     </div>
                     <div class="form-group">
                         <label for="lname">Last Name</label>
-                        <input type="text" class="form-control" id="lname" placeholder="Enter your last name">
+                        <input type="text" class="form-control" id="lname" name="lname" value="{{ current_user['last_name'] }}" placeholder="Enter your last name">
                     </div>
                     <div class="form-group">
                         <label for="email">Email address</label>
-                        <input type="email" class="form-control" id="email" placeholder="Enter your email">
+                        <input type="email" class="form-control" id="email" name="email" value="{{ current_user['email'] }}" placeholder="Enter your email">
                     </div>
                     <div class="form-group">
                         <label for="phone">Phone Number</label>
-                        <input type="text" class="form-control" id="phone" placeholder="Enter your phone number">
+                        <input type="text" class="form-control" id="phone" name="phone" value="{{ current_user['phone_no'] }}" placeholder="Enter your phone number">
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" class="form-control" id="password" placeholder="Enter new password">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter new password">
                     </div>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='/user_menu/settings'">Cancel</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-{% if current_user.is_admin %}
+{% if current_user.privilege == 'admin' %}
     {% include "layouts/admin/admin_collapsible_menu.html" %}
 {% else %}
     {% include "layouts/user/collapsible_menu.html" %}
@@ -54,4 +61,18 @@
 
 <!-- Include the JavaScript file -->
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const notification = document.querySelector('.alert');
+        if (notification) {
+            setTimeout(() => {
+                notification.classList.add('fade');
+                setTimeout(() => {
+                    notification.remove();
+                }, 500); // Match the CSS transition duration
+            }, 5000); // 5 seconds timeout
+        }
+    });
+</script>
 {% endblock %}
