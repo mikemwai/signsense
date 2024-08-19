@@ -1,4 +1,10 @@
 # create_db.py
+import sys
+import os
+
+# Ensure the parent directory is in the PYTHONPATH
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from app import db
 from database.models import User
 from pymongo.errors import OperationFailure
