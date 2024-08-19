@@ -7,7 +7,7 @@ from app import app, db
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('pages/../index.html')
+    return render_template('pages/index.html')
 
 @app.route('/about', methods=['GET'])
 def about():
