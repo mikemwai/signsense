@@ -18,8 +18,17 @@ try:
         email="john.doe@example.com",
         phone_no="1234567890",
         gender="male",
-        password=generate_password_hash("password123"),
-        privilege="user"  # Default privilege
+        password=generate_password_hash("signsense"),
+        privilege="user"  
+    ),
+    User(
+        first_name="Jane",
+        last_name="Smith",
+        email="jane.smith@example.com",
+        phone_no="0987654321",
+        gender="female",
+        password=generate_password_hash("signsense"),
+        privilege="admin"  
     )
     db.users.insert_one(user.to_dict())
     print("User inserted successfully.")
