@@ -51,6 +51,10 @@ This is a machine learning model designed for the recognition of Kenyan Sign Lan
     
   - Access the application using the generated URL by ngrok through your phone's web browser.
 
+## Deployment
+
+- The flask application has been deployed using nginx and gunicorn. The deployment process is outlined in the [Deployment.md](Deployment.md) file.
+
 ## Contributions
 
 If you'd like to contribute to this project:
