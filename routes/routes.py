@@ -2,8 +2,25 @@ from flask import request, redirect, url_for, render_template, session, jsonify
 from bson import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+from authlib.integrations.flask_client import OAuth
 
 from app import app, db
+
+app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key')
+oauth = OAuth(app)
+
+google = oauth.register(
+    name='google',
+    client_id=os.getenv('GOOGLE_ID'),
+    client_secret=os.getenv('GOOGLE_SECRET'),
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    access_token_params=None,
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_params=None,
+    userinfo_endpoint='https://www.googleapis.com/oauth2/v1/userinfo',
+    jwks_uri='https://www.googleapis.com/oauth2/v3/certs',
+    client_kwargs={'scope': 'openid profile email'},
+)
 
 @app.route('/', methods=['GET'])
 def index():
@@ -22,7 +39,6 @@ def resources():
 def authentication():
     notification = session.pop('notification', None)
     if request.method == 'POST':
-        # Authentication logic here
         pass
     return render_template('pages/authentication/authentication.html', notification=notification)
 
@@ -35,11 +51,9 @@ def login():
     email = request.form['email']
     password = request.form['password']
 
-    # Check if the user exists in the database
     user = db.users.find_one({"email": email})
     if user:
         if check_password_hash(user['password'], password):
-            # Authentication successful
             session['user_email'] = email
             session['user_privilege'] = user['privilege']
             session['notification'] = {"type": "success", "message": "Login successful. Welcome back!"}
@@ -48,10 +62,8 @@ def login():
             else:
                 return redirect(url_for('user_dashboard'))
         else:
-            # Password does not match
             return render_template('pages/authentication/authentication.html', error="Invalid password")
     else:
-        # User does not exist
         return render_template('pages/authentication/authentication.html', error="User not found")
 
 @app.route('/register', methods=['POST'])
@@ -63,14 +75,11 @@ def register():
     gender = request.form['gender']
     password = request.form['password']
 
-    # Check if the user already exists
     if db.users.find_one({"email": email}):
         return render_template('pages/authentication/authentication.html', error="User already exists")
 
-    # Hash the password
     hashed_password = generate_password_hash(password)
 
-    # Create a new user with default privilege "user"
     user = {
         "first_name": first_name,
         "last_name": last_name,
@@ -81,14 +90,66 @@ def register():
         "privilege": "user"
     }
 
-    # Insert the user into the database
     db.users.insert_one(user)
 
-    # Set the notification message
     session['notification'] = {"type": "success", "message": "User registered successfully. Please login to continue."}
 
-    # Redirect to the login page
     return redirect(url_for('authentication'))
+
+@app.route('/google_login')
+def google_login():
+    return google.authorize_redirect(url_for('google_callback', _external=True))
+
+
+@app.route('/google_callback')
+def google_callback():
+    token = google.authorize_access_token()
+    response = google.get('https://www.googleapis.com/oauth2/v2/userinfo')
+
+    if response is None or response.status_code != 200:
+        session['notification'] = {"type": "danger", "message": "Failed to fetch user info from Google."}
+        return redirect(url_for('authentication'))
+
+    user_info = response.json()
+    user_email = user_info.get('email')
+
+    user = db.users.find_one({"email": user_email})
+
+    if user:
+        session['user_email'] = user_email
+        session['user_privilege'] = user['privilege']
+        session['notification'] = {"type": "success", "message": "Login successful. Welcome back!"}
+
+        if user['privilege'] == 'admin':
+            return redirect(url_for('admin_dashboard'))
+        else:
+            return redirect(url_for('user_dashboard'))
+    else:
+        first_name = user_info.get('given_name', '')
+        last_name = user_info.get('family_name', '')
+
+        gender = None
+        phone_no = None
+
+        password = None
+
+        new_user = {
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": user_email,
+            "phone_no": phone_no,
+            "gender": gender,
+            "password": password,
+            "privilege": "user"
+        }
+
+        db.users.insert_one(new_user)
+
+        session['user_email'] = user_email
+        session['user_privilege'] = "user"
+        session['notification'] = {"type": "success", "message": "Registration successful. Welcome to Signsense!"}
+
+        return redirect(url_for('user_dashboard'))
 
 @app.route('/logout')
 def logout():
@@ -124,6 +185,7 @@ def model():
 
     return render_template('pages/user_menu/model.html', current_user=user)
 
+
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
     user_email = session.get('user_email')
@@ -141,12 +203,18 @@ def settings():
             "last_name": request.form.get('lname'),
             "email": request.form.get('email'),
             "phone_no": request.form.get('phone'),
-            "gender": request.form.get('gender'),
+            "gender": request.form.get('gender')
         }
+
         if request.form.get('password'):
             updated_data["password"] = generate_password_hash(request.form.get('password'))
 
         db.users.update_one({"email": user_email}, {"$set": updated_data})
+
+        session['user_email'] = updated_data['email']
+
+        user = db.users.find_one({"email": updated_data['email']})
+
         notification = {"type": "success", "message": "Profile updated successfully"}
 
     return render_template('pages/user_menu/settings.html', current_user=user, notification=notification)
@@ -182,10 +250,8 @@ def add_user():
     privilege = request.form['newPrivilege']
     password = request.form['newPassword']
 
-    # Hash the password
     hashed_password = generate_password_hash(password)
 
-    # Create a new user
     user = {
         "first_name": first_name,
         "last_name": last_name,
@@ -196,13 +262,10 @@ def add_user():
         "password": hashed_password
     }
 
-    # Insert the user into the database
     db.users.insert_one(user)
 
-    # Set the notification message
     session['notification'] = {"type": "success", "message": "User added successfully"}
 
-    # Redirect to the manage users page
     return redirect(url_for('manage_users'))
 
 @app.route('/edit_user/<user_id>', methods=['POST'])
@@ -215,7 +278,6 @@ def edit_user(user_id):
     privilege = request.form['editPrivilege']
     password = request.form['editPassword']
 
-    # Prepare the update data
     update_data = {
         "first_name": first_name,
         "last_name": last_name,
@@ -228,13 +290,10 @@ def edit_user(user_id):
     if password:
         update_data["password"] = generate_password_hash(password)
 
-    # Update the user in the database
     db.users.update_one({"_id": ObjectId(user_id)}, {"$set": update_data})
 
-    # Set the notification message
     session['notification'] = {"type": "success", "message": "User updated successfully"}
 
-    # Redirect to the manage users page
     return redirect(url_for('manage_users'))
 
 @app.route('/delete_user/<user_id>', methods=['DELETE'])

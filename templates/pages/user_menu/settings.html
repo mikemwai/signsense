@@ -45,7 +45,7 @@
                     </div>
                     <div class="form-group">
                         <label for="gender">Gender</label>
-                        <input type="text" class="form-control" id="gender" name="text" value="{{ current_user['gender'] }}" placeholder="Enter your gender">
+                        <input type="text" class="form-control" id="gender" name="gender" value="{{ current_user['gender'] }}" placeholder="Enter your gender">
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
@@ -64,7 +64,6 @@
     {% include "layouts/user/collapsible_menu.html" %}
 {% endif %}
 
-<!-- Include the JavaScript file -->
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 <script>
@@ -75,8 +74,8 @@
                 notification.classList.add('fade');
                 setTimeout(() => {
                     notification.remove();
-                }, 500); // Match the CSS transition duration
-            }, 5000); // 5 seconds timeout
+                }, 500);
+            }, 5000);
         }
     });
 </script>
