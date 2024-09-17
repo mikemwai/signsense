@@ -3,6 +3,8 @@ from bson import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from authlib.integrations.flask_client import OAuth
+from utilities.utils import generate_reset_token, send_reset_email
+import itsdangerous
 
 from app import app, db
 
@@ -42,9 +44,41 @@ def authentication():
         pass
     return render_template('pages/authentication/authentication.html', notification=notification)
 
-@app.route('/forget_password', methods=['GET'])
-def forget_password():
-    return render_template('pages/authentication/forget_password.html')
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email']
+        user = db.users.find_one({"email": email})
+        if user:
+            token = generate_reset_token(email)
+            send_reset_email(email, token)
+            session['notification'] = {"type": "success", "message": "Password reset email sent!"}
+        else:
+            session['notification'] = {"type": "danger", "message": "Email not found!"}
+        return redirect(url_for('forgot_password'))
+    notification = session.pop('notification', None)
+    return render_template('pages/authentication/forgot_password.html', notification=notification)
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        serializer = itsdangerous.URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        email = serializer.loads(token, salt=app.config['SECURITY_PASSWORD_SALT'], max_age=3600)
+    except itsdangerous.SignatureExpired:
+        session['notification'] = {"type": "danger", "message": "The reset link is expired"}
+        return redirect(url_for('forgot_password'))
+    except itsdangerous.BadSignature:
+        session['notification'] = {"type": "danger", "message": "Invalid reset link"}
+        return redirect(url_for('forgot_password'))
+
+    if request.method == 'POST':
+        password = request.form['password']
+        hashed_password = generate_password_hash(password)
+        db.users.update_one({"email": email}, {"$set": {"password": hashed_password}})
+        session['notification'] = {"type": "success", "message": "Password reset successfully!"}
+        return redirect(url_for('authentication'))
+
+    return render_template('pages/authentication/reset_password.html', token=token)
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -64,7 +98,7 @@ def login():
         else:
             return render_template('pages/authentication/authentication.html', error="Invalid password")
     else:
-        return render_template('pages/authentication/authentication.html', error="User not found")
+        return render_template('pages/authentication/authentication.html', error="User not found!")
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -76,7 +110,7 @@ def register():
     password = request.form['password']
 
     if db.users.find_one({"email": email}):
-        return render_template('pages/authentication/authentication.html', error="User already exists")
+        return render_template('pages/authentication/authentication.html', error="User already exists!")
 
     hashed_password = generate_password_hash(password)
 
@@ -92,7 +126,7 @@ def register():
 
     db.users.insert_one(user)
 
-    session['notification'] = {"type": "success", "message": "User registered successfully. Please login to continue."}
+    session['notification'] = {"type": "success", "message": "User registered successfully! Please login to continue."}
 
     return redirect(url_for('authentication'))
 
@@ -118,7 +152,7 @@ def google_callback():
     if user:
         session['user_email'] = user_email
         session['user_privilege'] = user['privilege']
-        session['notification'] = {"type": "success", "message": "Login successful. Welcome back!"}
+        session['notification'] = {"type": "success", "message": "Google login successful!"}
 
         if user['privilege'] == 'admin':
             return redirect(url_for('admin_dashboard'))

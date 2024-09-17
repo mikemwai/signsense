@@ -10,7 +10,6 @@
         </button>
     </div>
     {% endif %}
-    <!-- Login Form -->
     <div id="loginForm">
         <form method="POST" action="/login">
             <h3 class="text-center" style="font-family: Arial, serif;">Welcome Back</h3><br>
@@ -23,19 +22,17 @@
             <label for="passwordLogin" style="font-family: Arial, serif;">Password</label>
             <input type="password" placeholder="Enter your password" name="password" id="passwordLogin" required>
 
-            <a href="{{ url_for('forget_password') }}" class="forgot-password-link">Forgot Password?</a>
+            <a href="{{ url_for('forgot_password') }}" class="forgot-password-link">Forgot Password?</a>
             <button type="submit" class="form-toggle-btn">Login</button>
             <label class="paragraph" style="margin-top: 10px; text-align: center;">Don't have an account?
                 <a href="#" id="showRegisterLink" class="forgot-password-link">Sign Up</a>
             </label>
 
-            <!-- OR text with strikethrough effect -->
             <div class="or-container">
                 <span class="or-text">OR</span>
             </div>
 
-            <!-- Sign in with Google button -->
-            <div class="google-signin">
+            <div class="google-signin" style="margin-left: 12px">
                 <a href="{{ url_for('google_login') }}" class="form-toggle-btn google-btn">
                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20px" height="20px" viewBox="0 0 48 48" style="margin-right: 8px; vertical-align: text-bottom;">
                         <g>
@@ -51,9 +48,9 @@
             </div>
         </form>
     </div>
-    <!-- Register Form -->
+
     <div id="registerForm" style="display:none;">
-        <form method="POST" action="/register">
+        <form method="POST" action="/register" onsubmit="return validatePasswords()">
             <h3 class="text-center" style="font-family: Arial, serif;">Create an Account</h3><br>
             <label for="fname" style="font-family: Arial, serif;">First Name</label>
             <input type="text" placeholder="Enter your first name" name="fname" required>
@@ -71,7 +68,11 @@
             <input type="text" placeholder="Enter your gender" name="gender" required>
 
             <label for="passwordRegister" style="font-family: Arial, serif;">Password</label>
-            <input type="password" placeholder="Enter your password" name="password" required>
+            <input type="password" placeholder="Enter your password" name="password" id="passwordRegister" required>
+
+            <label for="confirm_passwordRegister" style="font-family: Arial, serif;">Confirm Password</label>
+            <input type="password" placeholder="Confirm your password" name="confirm_password" id="confirm_passwordRegister" required>
+            <div id="password-match-message" style="color: red; display: none;">Passwords do not match.</div>
 
             <button type="submit" class="form-toggle-btn">Register</button>
             <label class="paragraph" style="margin-top: 10px; text-align: center;">
@@ -95,6 +96,23 @@
         document.getElementById('loginForm').style.display = 'none';
     });
 
+    document.getElementById('passwordRegister').addEventListener('input', validatePasswords);
+    document.getElementById('confirm_passwordRegister').addEventListener('input', validatePasswords);
+
+    function validatePasswords() {
+        var password = document.getElementById("passwordRegister").value;
+        var confirmPassword = document.getElementById("confirm_passwordRegister").value;
+        var message = document.getElementById("password-match-message");
+
+        if (password !== confirmPassword) {
+            message.style.display = 'block';
+            return false;
+        } else {
+            message.style.display = 'none';
+            return true;
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const notification = document.querySelector('.alert');
         if (notification) {
@@ -102,8 +120,8 @@
                 notification.classList.add('fade');
                 setTimeout(() => {
                     notification.remove();
-                }, 500); // Match the CSS transition duration
-            }, 5000); // 5 seconds timeout
+                }, 500);
+            }, 5000);
         }
     });
 </script>
@@ -113,7 +131,7 @@
         display: flex;
         align-items: center;
         text-align: center;
-        margin: 15px 0; /* Reduced bottom margin */
+        margin: 15px 0 25px;
     }
     .or-container::before,
     .or-container::after {
