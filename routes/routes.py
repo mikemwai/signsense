@@ -382,3 +382,22 @@ def delete_resource():
         os.remove(file_path)
         return jsonify({'success': 'File deleted successfully'}), 200
     return jsonify({'error': 'File not found'}), 404
+
+############# APIs ##################
+@app.route('/api/dashboard_data', methods=['GET'])
+def get_dashboard_data():
+    total_users = db.users.count_documents({"privilege": "user"})
+    total_admins = db.users.count_documents({"privilege": "admin"})
+    total_resources = len(os.listdir(os.path.join(app.static_folder, 'documents')))
+    gender_distribution = db.users.aggregate([
+        {"$group": {"_id": {"$toLower": "$gender"}, "count": {"$sum": 1}}}
+    ])
+
+    gender_data = {item['_id'].capitalize(): item['count'] for item in gender_distribution}
+
+    return jsonify({
+        'total_users': total_users,
+        'total_admins': total_admins,
+        'total_resources': total_resources,
+        'gender_distribution': gender_data
+    })
