@@ -17,6 +17,12 @@ This is a machine learning model designed for the recognition of Kenyan Sign Lan
     pip install -r requirements.txt
     ```
 
+    - Picks up all the packages from the project and copies to the `requirements.txt` file:
+      
+    ```
+    pip freeze >> requirements.txt
+    ```
+
 ## Usage
 
 - Run the following command to start the application on your local machine:
