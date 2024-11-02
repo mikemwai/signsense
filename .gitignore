@@ -1,6 +1,7 @@
 /.venv/
 /.idea/
 /__pycache__/
+/runs
 /ngrok.exe
 .env
 test.py
