@@ -1,10 +1,15 @@
-from flask import request, redirect, url_for, render_template, session, jsonify
+from flask import request, redirect, url_for, render_template, session, jsonify, Response
 from bson import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from authlib.integrations.flask_client import OAuth
 from utilities.utils import generate_reset_token, send_reset_email
 import itsdangerous
+from PIL import Image
+import io
+import base64
+import cv2
+from ultralytics import YOLO
 
 from app import app, db
 
@@ -35,6 +40,44 @@ def about():
 @app.route('/resources', methods=['GET'])
 def resources():
     return render_template('pages/resources.html')
+
+######### Model Routes #########
+@app.route("/webcam_feed")
+def webcam_feed():
+    cap = cv2.VideoCapture(0)
+
+    def generate():
+        while True:
+            success, frame = cap.read()
+            if not success:
+                break
+
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            print(type(frame))
+
+            img = Image.open(io.BytesIO(frame))
+
+            model = YOLO("best.pt")
+            results = model(img, save=True)
+
+            print(results)
+            cv2.waitKey(1)
+
+            res_plotted = results[0].plot()
+            # cv2.imshow("result", res_plotted)
+
+            if cv2.waitKey(1) == ord('q'):
+                break
+
+            # Convert from BGR to RGB
+            img_BGR = cv2.cvtColor(res_plotted, cv2.COLOR_BGR2RGB)
+            frame = cv2.imencode('.jpg', img_BGR)[1].tobytes()
+
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+    return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 ######### Authentication Routes #########
 @app.route('/authentication', methods=['GET', 'POST'])
