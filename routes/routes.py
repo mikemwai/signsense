@@ -52,30 +52,31 @@ def webcam_feed():
             if not success:
                 break
 
-            # Convert from BGR to RGB before processing
-            frame_RGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            ret, buffer = cv2.imencode('.jpg', frame_RGB)
+            ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
+            print(type(frame))
 
             img = Image.open(io.BytesIO(frame))
 
             model = YOLO("best.pt")
             results = model(img, save=True)
 
+            print(results)
+            cv2.waitKey(1)
+
             res_plotted = results[0].plot()
+            # cv2.imshow("result", res_plotted)
 
             if cv2.waitKey(1) == ord('q'):
                 break
 
-            # Convert from RGB to BGR after processing
-            res_plotted_BGR = cv2.cvtColor(res_plotted, cv2.COLOR_RGB2BGR)
-            frame = cv2.imencode('.jpg', res_plotted_BGR)[1].tobytes()
+            # Convert from BGR to RGB
+            img_BGR = cv2.cvtColor(res_plotted, cv2.COLOR_BGR2RGB)
+            frame = cv2.imencode('.jpg', img_BGR)[1].tobytes()
 
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
-    #cap.release()
-    #cv2.destroyAllWindows()
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 ######### Authentication Routes #########
