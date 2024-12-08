@@ -1,5 +1,4 @@
 from flask import request, redirect, url_for, render_template, session, jsonify, Response
-from bson import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from authlib.integrations.flask_client import OAuth
@@ -9,12 +8,36 @@ from PIL import Image
 import io
 import base64
 import cv2
+import tensorflow as tf
+import numpy as np
 from ultralytics import YOLO
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
+import mediapipe as mp
 
 from app import app, db
 
 app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key')
 oauth = OAuth(app)
+
+# Define the list of actions that your model can predict
+actions = np.array(['hello', 'thanks', 'iloveyou'])  # Replace with your actual actions
+
+# Load the LSTM model
+model01 = Sequential()
+model01.add(LSTM(64, return_sequences=True, activation='relu', input_shape=(30, 1662)))
+model01.add(LSTM(128, return_sequences=True, activation='relu'))
+model01.add(LSTM(64, return_sequences=False, activation='relu'))
+model01.add(Dense(64, activation='relu'))
+model01.add(Dense(32, activation='relu'))
+model01.add(Dense(actions.shape[0], activation='softmax'))
+model01.load_weights('lstm.h5')
+
+print('Model loaded successfully!')
+
+# Update the path to the model file
+timesteps = 30  
+features = 1662 
 
 google = oauth.register(
     name='google',
@@ -41,42 +64,85 @@ def about():
 def resources():
     return render_template('pages/resources.html')
 
-######### Model Routes #########
-@app.route("/webcam_feed")
+######### Model Routes #########  
+def preprocess_input(data):
+    # Convert the input data to a numpy array and reshape it
+    processed_data = np.array(data)
+    processed_data = processed_data.reshape((processed_data.shape[0], timesteps, features))
+    return processed_data
+
+def extract_keypoints(results):
+    pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
+    face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else np.zeros(468*3)
+    lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else np.zeros(21*3)
+    rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else np.zeros(21*3)
+    return np.concatenate([pose, face, lh, rh])
+
+@app.route('/webcam_feed')
 def webcam_feed():
-    cap = cv2.VideoCapture(0)
+    mp_holistic = mp.solutions.holistic
+    mp_drawing = mp.solutions.drawing_utils
 
     def generate():
-        while True:
-            success, frame = cap.read()
-            if not success:
-                break
+        sequence = []
+        sentence = []
+        threshold = 0.5
 
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            print(type(frame))
+        cap = cv2.VideoCapture(0)  # Capture video from the webcam
+        if not cap.isOpened():
+            print("Error: Could not open webcam.")
+            return
 
-            img = Image.open(io.BytesIO(frame))
+        with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+            while True:
+                ret, frame = cap.read()
+                if not ret:
+                    print("Error: Could not read frame.")
+                    break
 
-            model = YOLO("best.pt")
-            results = model(img, save=True)
+                # Convert the frame to RGB
+                image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                image.flags.writeable = False
 
-            print(results)
-            cv2.waitKey(1)
+                # Make detections
+                results = holistic.process(image)
 
-            res_plotted = results[0].plot()
-            # cv2.imshow("result", res_plotted)
+                # Draw landmarks
+                image.flags.writeable = True
+                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                mp_drawing.draw_landmarks(image, results.face_landmarks, mp_holistic.FACEMESH_CONTOURS)
+                mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
+                mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+                mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
 
-            if cv2.waitKey(1) == ord('q'):
-                break
+               # Extract keypoints
+                keypoints = extract_keypoints(results)
+                sequence.append(keypoints)
+                sequence = sequence[-timesteps:]
 
-            # Convert from BGR to RGB
-            img_BGR = cv2.cvtColor(res_plotted, cv2.COLOR_BGR2RGB)
-            frame = cv2.imencode('.jpg', img_BGR)[1].tobytes()
+                if len(sequence) == timesteps:
+                    res = model01.predict(np.expand_dims(sequence, axis=0))[0]
+                    if res[np.argmax(res)] > threshold:
+                        if len(sentence) > 0:
+                            if actions[np.argmax(res)] != sentence[-1]:
+                                sentence.append(actions[np.argmax(res)])
+                        else:
+                            sentence.append(actions[np.argmax(res)])
 
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+                    if len(sentence) > 5:
+                        sentence = sentence[-5:]
 
+                    # Display the prediction text on the frame
+                    cv2.putText(image, ' '.join(sentence), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+                # Encode the frame in JPEG format
+                ret, buffer = cv2.imencode('.jpg', image)
+                frame = buffer.tobytes()
+
+                # Yield the frame as a byte array
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+        cap.release()
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 ######### Authentication Routes #########
