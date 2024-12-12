@@ -25,13 +25,13 @@ actions = np.array(['hello', 'thanks', 'iloveyou'])  # Replace with your actual 
 
 # Load the LSTM model
 model01 = Sequential()
-model01.add(LSTM(64, return_sequences=True, activation='relu', input_shape=(30, 1662)))
+model01.add(LSTM(64, return_sequences=True, activation='relu', input_shape=(30, 126)))
 model01.add(LSTM(128, return_sequences=True, activation='relu'))
 model01.add(LSTM(64, return_sequences=False, activation='relu'))
 model01.add(Dense(64, activation='relu'))
 model01.add(Dense(32, activation='relu'))
 model01.add(Dense(actions.shape[0], activation='softmax'))
-model01.load_weights('lstm.h5')
+model01.load_weights('test.h5')
 
 print('Model loaded successfully!')
 
@@ -72,16 +72,21 @@ def preprocess_input(data):
     return processed_data
 
 def extract_keypoints(results):
-    pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
-    face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else np.zeros(468*3)
+    # pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
+    # face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else np.zeros(468*3)
     lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else np.zeros(21*3)
     rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else np.zeros(21*3)
-    return np.concatenate([pose, face, lh, rh])
+    # return np.concatenate([pose, face, lh, rh])
+    return np.concatenate([lh, rh])
 
 @app.route('/webcam_feed')
 def webcam_feed():
     mp_holistic = mp.solutions.holistic
     mp_drawing = mp.solutions.drawing_utils
+
+    # Define the drawing specifications for turquoise color
+    hand_landmark_spec = mp_drawing.DrawingSpec(color=(121,22,76), thickness=2, circle_radius=2)  # Turquoise color for landmarks
+    hand_connection_spec = mp_drawing.DrawingSpec(color=(121,22,76), thickness=2, circle_radius=2)
 
     def generate():
         sequence = []
@@ -110,10 +115,10 @@ def webcam_feed():
                 # Draw landmarks
                 image.flags.writeable = True
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-                mp_drawing.draw_landmarks(image, results.face_landmarks, mp_holistic.FACEMESH_CONTOURS)
-                mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
-                mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
-                mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+                # mp_drawing.draw_landmarks(image, results.face_landmarks, mp_holistic.FACEMESH_CONTOURS)
+                # mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
+                mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS, hand_landmark_spec, hand_connection_spec)
+                mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS, hand_landmark_spec, hand_connection_spec)
 
                # Extract keypoints
                 keypoints = extract_keypoints(results)
