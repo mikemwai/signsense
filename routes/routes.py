@@ -21,7 +21,7 @@ app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key')
 oauth = OAuth(app)
 
 # Define the list of actions that your model can predict
-actions = np.array(['hello', 'thanks', 'iloveyou'])  # Replace with your actual actions
+actions = np.array(['church', 'mosque', 'love', 'seat', 'enough', 'temple', 'me', 'friend', 'you'])
 
 # Load the LSTM model
 model01 = Sequential()
@@ -31,13 +31,12 @@ model01.add(LSTM(64, return_sequences=False, activation='relu'))
 model01.add(Dense(64, activation='relu'))
 model01.add(Dense(32, activation='relu'))
 model01.add(Dense(actions.shape[0], activation='softmax'))
-model01.load_weights('test.h5')
+model01.load_weights('test1.h5')
 
 print('Model loaded successfully!')
 
 # Update the path to the model file
 timesteps = 30  
-features = 1662 
 
 google = oauth.register(
     name='google',
@@ -65,12 +64,6 @@ def resources():
     return render_template('pages/resources.html')
 
 ######### Model Routes #########  
-def preprocess_input(data):
-    # Convert the input data to a numpy array and reshape it
-    processed_data = np.array(data)
-    processed_data = processed_data.reshape((processed_data.shape[0], timesteps, features))
-    return processed_data
-
 def extract_keypoints(results):
     # pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
     # face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else np.zeros(468*3)
@@ -91,7 +84,7 @@ def webcam_feed():
     def generate():
         sequence = []
         sentence = []
-        threshold = 0.5
+        threshold = 0.8
 
         cap = cv2.VideoCapture(0)  # Capture video from the webcam
         if not cap.isOpened():
