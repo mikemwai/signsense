@@ -14,9 +14,21 @@
 
         <p class="lead"><strong>Show KSL sign signals in front of the camera or upload an image/ video</strong>, and let the advanced ML system detect and convert into a text output.</p>
 
-        <!-- Live video feed from the model -->
+        <!-- Toggle buttons -->
         <div style="margin-top: 20px;">
-            <img id="webcam-feed" src="{{ url_for('webcam_feed') }}" width="450" height="350" alt="Webcam Feed">
+            <button class="btn btn-secondary" onclick="showWebcam()">Use Webcam</button>
+            <button class="btn btn-secondary" onclick="showUpload()">Upload File</button>
+        </div>
+
+        <!-- Live video feed from the model -->
+        <div id="webcam-section" style="margin-top: 20px; display: none;">
+            <img id="webcam-feed" width="450" height="350" alt="Webcam Feed">
+        </div>
+
+        <!-- File upload section -->
+        <div id="upload-section" style="margin-top: 20px; display: none;">
+            <input type="file" id="fileInput" accept="image/*,video/*">
+            <button class="btn btn-primary" onclick="uploadFile()">Upload</button>
         </div>
 
         <div class="loader" style="display:none;"></div>
@@ -24,12 +36,6 @@
         <h3 id="result">
             <span> </span>
         </h3>
-
-        <!-- File upload section -->
-        <div style="margin-top: 20px;">
-            <input type="file" id="fileInput" accept="image/*,video/*">
-            <button class="btn btn-primary" onclick="uploadFile()">Upload</button>
-        </div>
 
     </center><br><br>
 </div>
@@ -44,6 +50,30 @@
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 <script>
+    function showWebcam() {
+        document.getElementById('webcam-section').style.display = 'block';
+        document.getElementById('upload-section').style.display = 'none';
+        startWebcam();
+    }
+
+    function showUpload() {
+        document.getElementById('webcam-section').style.display = 'none';
+        document.getElementById('upload-section').style.display = 'block';
+        stopWebcam();
+    }
+
+    function startWebcam() {
+        // Add code to start the webcam feed
+        const webcamFeed = document.getElementById('webcam-feed');
+        webcamFeed.src = "{{ url_for('webcam_feed') }}";
+    }
+
+    function stopWebcam() {
+        // Add code to stop the webcam feed
+        const webcamFeed = document.getElementById('webcam-feed');
+        webcamFeed.src = "";
+    }
+
     // Function to handle file upload
     function uploadFile() {
         const fileInput = document.getElementById('fileInput');
@@ -51,6 +81,9 @@
         if (file) {
             const formData = new FormData();
             formData.append('file', file);
+
+            // Show loading animation
+            document.querySelector('.loader').style.display = 'block';
 
             fetch('/upload_file', {
                 method: 'POST',
@@ -60,15 +93,16 @@
             .then(data => {
                 console.log('Success:', data);
                 document.getElementById('result').innerText = data.result;
-                // Update recognized sign text
-                document.getElementById('sign-text').innerText = data.sign || "Sign not recognized";
+                // Hide loading animation
+                document.querySelector('.loader').style.display = 'none';
             })
-            .catch((error) => {
+            .catch(error => {
                 console.error('Error:', error);
+                // Hide loading animation
+                document.querySelector('.loader').style.display = 'none';
             });
-        } else {
-            alert('Please select a file to upload.');
         }
     }
 </script>
+
 {% endblock %}

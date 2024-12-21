@@ -1,3 +1,4 @@
+from bson import ObjectId
 from flask import request, redirect, url_for, render_template, session, jsonify, Response
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -11,8 +12,8 @@ import cv2
 import tensorflow as tf
 import numpy as np
 from ultralytics import YOLO
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.models import Sequential # type: ignore
+from tensorflow.keras.layers import LSTM, Dense # type: ignore
 import mediapipe as mp
 
 from app import app, db
@@ -65,11 +66,8 @@ def resources():
 
 ######### Model Routes #########  
 def extract_keypoints(results):
-    # pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
-    # face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else np.zeros(468*3)
     lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else np.zeros(21*3)
     rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else np.zeros(21*3)
-    # return np.concatenate([pose, face, lh, rh])
     return np.concatenate([lh, rh])
 
 @app.route('/webcam_feed')
@@ -142,6 +140,43 @@ def webcam_feed():
                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
         cap.release()
     return Response(generate(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/upload_file', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    # Save the uploaded file to a temporary location
+    file_path = 'temp_video.mp4'
+    file.save(file_path)
+
+    # Read the video file
+    cap = cv2.VideoCapture(file_path)
+    frames = []
+    while len(frames) < 30:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        frame = cv2.resize(frame, (126, 126))  # Resize to the input size of the model
+        frame = frame / 255.0  # Normalize the frame
+        features = extract_keypoints(frame)
+        frames.append(features)
+    cap.release()
+
+    if len(frames) < 30:
+        return jsonify({'error': 'Video too short, need at least 30 frames'}), 400
+
+    frames = np.array(frames)
+    frames = np.expand_dims(frames, axis=0)  # Add batch dimension
+
+    # Make prediction
+    prediction = model01.predict(frames)
+    predicted_action = actions[np.argmax(prediction)]
+
+    return jsonify({'result': predicted_action})
 
 ######### Authentication Routes #########
 @app.route('/authentication', methods=['GET', 'POST'])
