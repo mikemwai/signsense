@@ -11,7 +11,6 @@ from pymongo.errors import OperationFailure
 from werkzeug.security import generate_password_hash
 
 try:
-    # Create a sample user with hashed password and default privilege
     user1 = User(
         first_name="John",
         last_name="Doe",
