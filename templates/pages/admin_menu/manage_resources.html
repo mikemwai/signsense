@@ -113,15 +113,23 @@
                     const listItem = document.createElement('li');
                     listItem.className = 'list-group-item';
                     listItem.innerHTML = `
-                        ${resource}
+                        ${resource.filename}
                         <span class="icon-group">
-                            <i onclick="deleteResource('${resource}')" class="fas fa-trash text-danger"></i>
+                            <i onclick="deleteResource('${resource.filename}')" class="fas fa-trash text-danger"></i>
+                            <i onclick="showEditModal('${resource.filename}')" class="fas fa-edit text-primary"></i>
                         </span>
                     `;
                     resourcesList.appendChild(listItem);
                 });
             })
             .catch(error => showNotification(`Error loading resources: ${error}`, 'error'));
+    }
+
+    function showEditModal(filename) {
+        const newFilename = prompt("Enter new filename:", filename);
+        if (newFilename && newFilename !== filename) {
+            updateResource(filename, newFilename);
+        }
     }
 
     function deleteResource(filename) {
@@ -142,6 +150,32 @@
             }
         })
         .catch(error => showNotification(`Error deleting resource: ${error}`, 'error'));
+    }
+
+    function updateResource(filename, newFilename) {
+        const formData = new FormData();
+        formData.append('filename', filename);
+        formData.append('newFilename', newFilename);
+
+        fetch('/update_resource', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showNotification('Resource updated successfully!', 'success');
+                loadResources();
+            } else {
+                showNotification(`Error updating resource: ${data.error}`, 'error');
+            }
+        })
+        .catch(error => showNotification(`Error updating resource: ${error}`, 'error'));
     }
 
     window.onload = loadResources;

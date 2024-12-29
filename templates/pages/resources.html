@@ -74,7 +74,7 @@
                     const listItem = document.createElement('li');
                     listItem.className = 'list-group-item';
                     listItem.innerHTML = `
-                        <a href="/static/documents/${resource}" target="_blank"><i class="fas fa-file-pdf"></i>${resource}</a>
+                        <a href="/download_resource/${resource.resource_id}" target="_blank"><i class="fas fa-file-pdf"></i>${resource.filename}</a>
                     `;
                     resourcesList.appendChild(listItem);
                 });

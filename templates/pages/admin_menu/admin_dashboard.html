@@ -43,10 +43,31 @@
         <h4>Gender Statistics</h4>
         <canvas id="statisticsChart" width="400" height="200"></canvas>
     </div>
-
-    <div class="user-activity-graph dashboard-section">
-        <h4>User Activity Graph</h4>
-        <canvas id="activityGraph" width="400" height="200"></canvas>
+    
+    <div class="recent-activities dashboard-section">
+        <h4>Recent User Activities</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Email</th>
+                    <th>Activity Type</th>
+                    <th>Success</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for activity in activities %}
+                <tr>
+                    <td>{{ activity.user_id }}</td>
+                    <td>{{ activity.email }}</td>
+                    <td>{{ activity.activity_type }}</td>
+                    <td>{{ activity.success }}</td>
+                    <td>{{ activity.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 

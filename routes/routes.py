@@ -1,6 +1,7 @@
 from bson import ObjectId
-from flask import request, redirect, url_for, render_template, session, jsonify, Response
+from flask import request, redirect, url_for, render_template, session, jsonify, Response, send_file
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import os
 from authlib.integrations.flask_client import OAuth
 from utilities.utils import generate_reset_token, send_reset_email
@@ -11,15 +12,22 @@ import base64
 import cv2
 import tensorflow as tf
 import numpy as np
+import gridfs
 from ultralytics import YOLO
 from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import LSTM, Dense # type: ignore
 import mediapipe as mp
+from datetime import datetime
+from database.models import UserActivity
+from database.models import Resource
+from io import BytesIO
 
 from app import app, db
 
 app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key')
 oauth = OAuth(app)
+
+fs = gridfs.GridFS(db)
 
 # Define the list of actions that your model can predict
 actions = np.array(['church', 'mosque', 'love', 'seat', 'enough', 'temple', 'me', 'friend', 'you'])
@@ -222,6 +230,10 @@ def reset_password(token):
 
     return render_template('pages/authentication/reset_password.html', token=token)
 
+def log_user_activity(user_id, email, activity_type, success):
+    user_activity = UserActivity(user_id, email, activity_type, success)
+    db.user_activity.insert_one(user_activity.to_dict())
+
 @app.route('/login', methods=['POST'])
 def login():
     email = request.form['email']
@@ -233,13 +245,21 @@ def login():
             session['user_email'] = email
             session['user_privilege'] = user['privilege']
             session['notification'] = {"type": "success", "message": "Login successful. Welcome back!"}
+            
+            # Log the login activity
+            log_user_activity(user['_id'], email, activity_type="login", success=True)
+
             if user['privilege'] == 'admin':
                 return redirect(url_for('admin_dashboard'))
             else:
                 return redirect(url_for('user_dashboard'))
         else:
+            # Log the failed login attempt
+            log_user_activity(user['_id'], email, activity_type="login", success=False)
             return render_template('pages/authentication/authentication.html', error="Invalid password")
     else:
+        # Log the failed login attempt
+        log_user_activity(None, email, activity_type="login", success=False)
         return render_template('pages/authentication/authentication.html', error="User not found!")
 
 @app.route('/register', methods=['POST'])
@@ -338,16 +358,16 @@ def logout():
 @app.route('/user_dashboard', methods=['GET'])
 def user_dashboard():
     user_email = session.get('user_email')
-    user_privilege = session.get('user_privilege')
-    if not user_email or user_privilege != 'user':
+    if not user_email:
         return redirect(url_for('authentication'))
 
     user = db.users.find_one({"email": user_email})
     if not user:
         return redirect(url_for('authentication'))
 
+    activities = list(db.user_activity.find({"email": user_email}).sort("timestamp", -1).limit(10))  # Fetch the 10 most recent activities for the user
     notification = session.pop('notification', None)
-    return render_template('pages/user_menu/user_dashboard.html', user=user, notification=notification)
+    return render_template('pages/user_menu/user_dashboard.html', user=user, activities=activities, notification=notification)
 
 @app.route('/model', methods=['GET'])
 def model():
@@ -407,8 +427,9 @@ def admin_dashboard():
     if not user:
         return redirect(url_for('authentication'))
 
+    activities = list(db.user_activity.find().sort("timestamp", -1).limit(10))  # Fetch the 10 most recent activities
     notification = session.pop('notification', None)
-    return render_template('pages/admin_menu/admin_dashboard.html', user=user, notification=notification)
+    return render_template('pages/admin_menu/admin_dashboard.html', user=user, activities=activities, notification=notification)
 
 @app.route('/manage_users', methods=['GET'])
 def manage_users():
@@ -500,9 +521,14 @@ def manage_resources():
 
 @app.route('/list_resources', methods=['GET'])
 def list_resources():
-    documents_path = os.path.join(app.static_folder, 'documents')
-    resources = os.listdir(documents_path)
-    return jsonify(resources)
+    resources = db.resources.find()
+    resource_list = []
+    for resource in resources:
+        resource_list.append({
+            'filename': resource['filename'],
+            'resource_id': str(resource['resource_id'])
+        })
+    return jsonify(resource_list)
 
 @app.route('/upload_resource', methods=['POST'])
 def upload_resource():
@@ -512,25 +538,56 @@ def upload_resource():
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
     if file:
-        filename = file.filename
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        filename = secure_filename(file.filename)
+        file_id = fs.put(file, filename=filename)
+        resource = Resource(filename=filename, resource_id=str(file_id))
+        db.resources.insert_one(resource.to_dict())
         return jsonify({'success': 'File uploaded successfully'}), 200
 
 @app.route('/delete_resource', methods=['POST'])
 def delete_resource():
     filename = request.form['filename']
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    if os.path.exists(file_path):
-        os.remove(file_path)
+    resource = db.resources.find_one({'filename': filename})
+    if resource:
+        fs.delete(ObjectId(resource['resource_id']))
+        db.resources.delete_one({'filename': filename})
         return jsonify({'success': 'File deleted successfully'}), 200
     return jsonify({'error': 'File not found'}), 404
+
+@app.route('/download_resource/<resource_id>', methods=['GET'])
+def download_resource(resource_id):
+    try:
+        file = fs.get(ObjectId(resource_id))
+        return send_file(BytesIO(file.read()), download_name=file.filename, as_attachment=True)
+    except gridfs.errors.NoFile:
+        return jsonify({'error': 'File not found'}), 404
+    
+@app.route('/update_resource', methods=['POST'])
+def update_resource():
+    filename = request.form.get('filename')
+    new_filename = request.form.get('newFilename')
+    
+    if not filename or not new_filename:
+        return jsonify({'error': 'Filename and new filename are required'}), 400
+
+    resource = db.resources.find_one({'filename': filename})
+    if not resource:
+        return jsonify({'error': 'Resource not found'}), 404
+
+    try:
+        # Update the filename in the database
+        db.resources.update_one({'filename': filename}, {'$set': {'filename': secure_filename(new_filename)}})
+        return jsonify({'success': 'Resource updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 ############# APIs ##################
 @app.route('/api/dashboard_data', methods=['GET'])
 def get_dashboard_data():
     total_users = db.users.count_documents({"privilege": "user"})
     total_admins = db.users.count_documents({"privilege": "admin"})
-    total_resources = len(os.listdir(os.path.join(app.static_folder, 'documents')))
+    total_resources = db.resources.count_documents({})
+    total_activities = db.user_activities.count_documents({})
     gender_distribution = db.users.aggregate([
         {"$group": {"_id": {"$toLower": "$gender"}, "count": {"$sum": 1}}}
     ])
