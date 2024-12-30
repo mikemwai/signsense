@@ -28,13 +28,23 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('feedback') }}" style="color: white;">
+                            <i class="fas fa-comment-dots"></i> Feedback
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('manage_users') }}" style="color: white;">
-                            <i class="fas fa-users"></i> User Management
+                            <i class="fas fa-users"></i> Users Management
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('manage_resources') }}" style="color: white;">
                             <i class="fas fa-book"></i> Resources Management
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('manage_feedback') }}" style="color: white;">
+                            <i class="fas fa-comments"></i> Feedback Management
                         </a>
                     </li>
                     <li class="nav-item">

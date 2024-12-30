@@ -414,6 +414,36 @@ def settings():
 
     return render_template('pages/user_menu/settings.html', current_user=user, notification=notification)
 
+@app.route('/feedback', methods=['GET', 'POST'])
+def feedback():
+    user_email = session.get('user_email')
+    if not user_email:
+        return redirect(url_for('authentication'))
+
+    user = db.users.find_one({"email": user_email})
+    if not user:
+        return redirect(url_for('authentication'))
+
+    if request.method == 'POST':
+        gesture_detected = request.form.get('gesture_detected')
+        gesture_expected = request.form.get('gesture_expected')
+        comments = request.form.get('comments')
+
+        if gesture_detected and gesture_expected:
+            db.feedback.insert_one({
+                "user_id": user['_id'],
+                "gesture_detected": gesture_detected,
+                "gesture_expected": gesture_expected,
+                "comments": comments,
+                "timestamp": datetime.now()
+            })
+
+            session['notification'] = {"type": "success", "message": "Feedback submitted successfully!"}
+            return redirect(url_for('feedback'))
+
+    notification = session.pop('notification', None)
+    return render_template('pages/user_menu/feedback.html', current_user=user, notification=notification)
+
 ############### Admin Menu Routes ##############
 @app.route('/admin_dashboard', methods=['GET'])
 def admin_dashboard():
@@ -579,6 +609,103 @@ def update_resource():
         return jsonify({'success': 'Resource updated successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/manage_feedback', methods=['GET'])
+def manage_feedback():
+    user_email = session.get('user_email')
+    
+    # Redirect to login if the user is not authenticated
+    if not user_email:
+        return redirect(url_for('authentication'))
+
+    # Verify the user exists and has admin privileges
+    user = db.users.find_one({"email": user_email})
+    if not user or user.get('privilege') != 'admin':
+        return redirect(url_for('authentication'))
+
+    # Fetch feedback from the database
+    feedbacks = db.feedback.find()
+
+    # Convert feedback documents into a JSON-serializable format
+    feedback_list = [
+        {
+            "feedback_id": str(feedback.get('_id')),
+            "user_id": str(feedback.get('user_id', '')),  # Handle missing or null `user_id`
+            "gesture_detected": feedback.get('gesture_detected', ''),
+            "gesture_expected": feedback.get('gesture_expected', ''),
+            "comments": feedback.get('comments', ''),
+            "timestamp": feedback.get('timestamp', '')
+        }
+        for feedback in feedbacks
+    ]
+
+    # Fetch notifications from the session
+    notification = session.pop('notification', None)
+
+    # Render the feedback management page
+    return render_template(
+        'pages/admin_menu/manage_feedback.html',
+        feedbacks=feedback_list,
+        current_user=user,
+        notification=notification
+    )
+
+@app.route('/edit_feedback/<feedback_id>', methods=['POST'])
+def edit_feedback(feedback_id):
+    user_email = session.get('user_email')
+
+    # Redirect to login if the user is not authenticated
+    if not user_email:
+        return redirect(url_for('authentication'))
+
+    # Verify the user exists and has admin privileges
+    user = db.users.find_one({"email": user_email})
+    if not user or user.get('privilege') != 'admin':
+        return redirect(url_for('authentication'))
+
+    # Get updated feedback data from the form
+    gesture_detected = request.form.get('gesture_detected', '').strip()
+    gesture_expected = request.form.get('gesture_expected', '').strip()
+    comments = request.form.get('comments', '').strip()
+
+    # Ensure `feedback_id` is a valid ObjectId
+    try:
+        feedback_object_id = ObjectId(feedback_id)
+    except Exception:
+        session['notification'] = {"type": "error", "message": "Invalid feedback ID!"}
+        return redirect(url_for('manage_feedback'))
+
+    # Update feedback in the database
+    db.feedback.update_one(
+        {"_id": feedback_object_id},
+        {
+            "$set": {
+                "gesture_detected": gesture_detected,
+                "gesture_expected": gesture_expected,
+                "comments": comments
+            }
+        }
+    )
+
+    # Provide a success notification
+    session['notification'] = {"type": "success", "message": "Feedback updated successfully!"}
+    return redirect(url_for('manage_feedback'))
+
+
+@app.route('/delete_feedback/<feedback_id>', methods=['POST'])
+def delete_feedback(feedback_id):
+    user_email = session.get('user_email')
+    if not user_email:
+        return redirect(url_for('authentication'))
+
+    user = db.users.find_one({"email": user_email})
+    if not user or user.get('privilege') != 'admin':
+        return redirect(url_for('authentication'))
+
+    db.feedback.delete_one({"_id": ObjectId(feedback_id)})
+
+    session['notification'] = {"type": "success", "message": "Feedback deleted successfully!"}
+    return redirect(url_for('manage_feedback'))
 
 ############# APIs ##################
 @app.route('/api/dashboard_data', methods=['GET'])

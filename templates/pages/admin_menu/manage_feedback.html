@@ -1,0 +1,137 @@
+{% extends "layouts/import.html" %}
+
+{% block content %}
+<style>
+    body {
+        padding-top: 50px;
+        padding-bottom: 60px;
+    }
+    .card:hover {
+        transform: none;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            {% if notification %}
+                <div class="alert alert-{{ notification.type }} mt-3">
+                    {{ notification.message }}
+                </div>
+            {% endif %}
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Feedback Management</h3>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">User ID</th>
+                                <th scope="col">Gesture Detected</th>
+                                <th scope="col">Gesture Expected</th>
+                                <th scope="col">Comments</th>
+                                <th scope="col">Timestamp</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for feedback in feedbacks %}
+                            <tr>
+                                <td>{{ feedback.user_id }}</td>
+                                <td>{{ feedback.gesture_detected }}</td>
+                                <td>{{ feedback.gesture_expected }}</td>
+                                <td>{{ feedback.comments }}</td>
+                                <td>{{ feedback.timestamp }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#editFeedbackModal" data-feedback='{"gesture_detected": "{{ feedback.gesture_detected }}", "gesture_expected": "{{ feedback.gesture_expected }}", "comments": "{{ feedback.comments }}", "feedback_id": "{{ feedback.feedback_id }}"}'>
+                                      <i class="fas fa-edit"></i>
+                                    </button>                           
+                                    <form method="POST" action="{{ url_for('delete_feedback', feedback_id=feedback.feedback_id) }}" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Feedback Modal -->
+<div class="modal fade" id="editFeedbackModal" tabindex="-1" role="dialog" aria-labelledby="editFeedbackModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="editFeedbackModalLabel">Edit Feedback</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <form id="editFeedbackForm" method="POST">
+                  <div class="form-group">
+                      <label for="editGestureDetected">Gesture Detected</label>
+                      <input type="text" class="form-control" id="editGestureDetected" name="gesture_detected">
+                  </div>
+                  <div class="form-group">
+                      <label for="editGestureExpected">Gesture Expected</label>
+                      <input type="text" class="form-control" id="editGestureExpected" name="gesture_expected">
+                  </div>
+                  <div class="form-group">
+                      <label for="editComments">Comments</label>
+                      <textarea class="form-control" id="editComments" name="comments"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Save changes</button>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+{% if current_user.privilege == 'admin' %}
+    {% include "layouts/admin/admin_collapsible_menu.html" %}
+{% else %}
+    {% include "layouts/user/collapsible_menu.html" %}
+{% endif %}
+
+<!-- Include the JavaScript file -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const notification = document.querySelector('.alert');
+      if (notification) {
+          setTimeout(() => {
+              notification.classList.add('fade');
+              setTimeout(() => {
+                  notification.remove();
+              }, 500);
+          }, 3000);
+      }
+
+      $('#editFeedbackModal').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget);
+          var feedback = button.data('feedback');
+          console.log(feedback);  // Debug feedback object
+
+          var modal = $(this);
+          modal.find('#editGestureDetected').val(feedback.gesture_detected);
+          modal.find('#editGestureExpected').val(feedback.gesture_expected);
+          modal.find('#editComments').val(feedback.comments);
+
+          // Dynamically set form action
+          modal.find('#editFeedbackForm').attr(
+              'action',
+              '{{ url_for("edit_feedback", feedback_id="") }}' + feedback.feedback_id
+          );
+      });
+  });
+</script>
+
+{% endblock %}

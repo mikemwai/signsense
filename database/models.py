@@ -53,3 +53,22 @@ class Resource:
             "filename": self.filename,
             "upload_date": self.upload_date
         }
+    
+class Feedback:
+    def __init__(self, user_id, gesture_detected, gesture_expected, comments=None, feedback_id=None, timestamp=None):
+        self.feedback_id = feedback_id or str(ObjectId())
+        self.user_id = user_id
+        self.gesture_detected = gesture_detected
+        self.gesture_expected = gesture_expected
+        self.comments = comments
+        self.timestamp = timestamp or datetime.now(pytz.timezone('Africa/Nairobi'))
+
+    def to_dict(self):
+        return {
+            "feedback_id": self.feedback_id,
+            "user_id": self.user_id,
+            "gesture_detected": self.gesture_detected,
+            "gesture_expected": self.gesture_expected,
+            "comments": self.comments,
+            "timestamp": self.timestamp
+        }
