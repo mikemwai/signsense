@@ -12,33 +12,30 @@
     <center>
         <br><h2>Welcome to Signsense's recognition portal!</h2>
 
-        <p class="lead"><strong>Show KSL sign signals in front of the camera or upload a video</strong>, and let the advanced ML system detect and convert into a text output.</p>
+        <p class="lead"><strong>Show KSL sign signals in front of the camera or upload an image/ video</strong>, and let the advanced ML system detect and convert into a text output.</p>
 
-    <!-- Toggle buttons -->
-    <div style="margin-top: 20px;">
-        <button class="btn btn-secondary" onclick="showWebcam()">Use Webcam</button>
-        <button class="btn btn-secondary" onclick="showUpload()">Upload File</button>
-    </div>
+        <!-- Toggle buttons -->
+        <div style="margin-top: 20px;">
+            <button class="btn btn-secondary" onclick="showWebcam()">Use Webcam</button>
+            <button class="btn btn-secondary" onclick="showUpload()">Upload File</button>
+        </div>
 
-    <!-- Live video feed from the model -->
-    <div id="webcam-section" style="margin-top: 20px; display: none;">
-        <img id="webcam-feed" width="450" height="350" alt="Webcam Feed">
-    </div>
+        <!-- Live video feed from the model -->
+        <div id="webcam-section" style="margin-top: 20px; display: none;">
+            <img id="webcam-feed" width="450" height="350" alt="Webcam Feed">
+        </div>
 
-    <!-- File upload section -->
-    <div id="upload-section" style="margin-top: 20px; display: none;">
-        <input type="file" id="fileInput" accept="image/*,video/*">
-        <button class="btn btn-primary" onclick="uploadFile()">Upload</button>
-    </div>
+        <!-- File upload section -->
+        <div id="upload-section" style="margin-top: 20px; display: none;">
+            <input type="file" id="fileInput" accept="image/*,video/*">
+            <button class="btn btn-primary" onclick="uploadFile()">Upload</button>
+        </div>
 
-    <div class="loader" style="display:none;"></div>
+        <div class="loader" style="display:none;"></div>
 
-    <h3 id="result">
-        <span> </span>
-    </h3>
-
-    <!-- Link to download the output video -->
-    <a id="downloadLink" href="#" style="display:none;" download="static/output_video.avi">Download Processed Video</a>
+        <h3 id="result">
+            <span> </span>
+        </h3>
 
     </center><br><br>
 </div>
@@ -56,14 +53,12 @@
     function showWebcam() {
         document.getElementById('webcam-section').style.display = 'block';
         document.getElementById('upload-section').style.display = 'none';
-        document.getElementById('downloadLink').style.display = 'none';
         startWebcam();
     }
 
     function showUpload() {
         document.getElementById('webcam-section').style.display = 'none';
         document.getElementById('upload-section').style.display = 'block';
-        document.getElementById('downloadLink').style.display = 'none';
         stopWebcam();
     }
 
@@ -83,12 +78,9 @@
     function uploadFile() {
         const fileInput = document.getElementById('fileInput');
         const file = fileInput.files[0];
-        const userEmail = "{{ current_user.email }}"; // Assuming you have access to the current user's email in the template
-
         if (file) {
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('user_email', userEmail); // Add user_email to the form data
 
             // Show loading animation
             document.querySelector('.loader').style.display = 'block';
@@ -100,13 +92,9 @@
             .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
-                document.getElementById('result').innerText = data.success;
+                document.getElementById('result').innerText = data.result;
                 // Hide loading animation
                 document.querySelector('.loader').style.display = 'none';
-                // Provide the download link for the output video
-                const downloadLink = document.getElementById('downloadLink');
-                downloadLink.href = data.processed_video_url;
-                downloadLink.style.display = 'block';
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -116,4 +104,5 @@
         }
     }
 </script>
+
 {% endblock %}

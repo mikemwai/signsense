@@ -42,6 +42,24 @@ This is a machine learning model designed for the recognition of Kenyan Sign Lan
     ```
 
 - This will start a development server on http://127.0.0.1:5000/ where you can access the application.
+- You can also access the application, running on the development server, on different devices:
+  - Download and install [ngrok](https://ngrok.com/download).
+  - Unzip the downloaded file and move the ngrok executable to the project's path.
+  - Add the authtoken to authenticate your account:
+    ```sh
+    ./ngrok authtoken <your_auth_token>
+    ```
+    
+  - Start ngrok:
+    ```sh
+    ./ngrok http 5000
+    ```
+    
+  - Access the application using the generated URL by ngrok through your phone's web browser.
+
+## Deployment
+
+- The flask application has been deployed using nginx and gunicorn. The deployment process is outlined in the [Deployment.md](Deployment.md) file.
 
 ## Contributions
 
