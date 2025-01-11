@@ -72,3 +72,20 @@ class Feedback:
             "comments": self.comments,
             "timestamp": self.timestamp
         }
+    
+class ProcessedVideo:
+    def __init__(self, user_email, original_filename, processed_file_id, upload_time, processed_video_url):
+        self.user_email = user_email
+        self.original_filename = original_filename
+        self.processed_file_id = processed_file_id
+        self.upload_time = upload_time
+        self.processed_video_url = processed_video_url
+
+    def to_dict(self):
+        return {
+            "user_email": self.user_email,
+            "original_filename": self.original_filename,
+            "processed_file_id": self.processed_file_id,
+            "upload_time": self.upload_time,
+            "processed_video_url": self.processed_video_url
+        }
