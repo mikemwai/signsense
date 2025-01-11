@@ -6,31 +6,32 @@ import os
 from authlib.integrations.flask_client import OAuth
 from utilities.utils import generate_reset_token, send_reset_email
 import itsdangerous
-from PIL import Image
-import io
-import base64
 import cv2
-import tensorflow as tf
 import numpy as np
 import gridfs
-from ultralytics import YOLO
-from tensorflow.keras.models import Sequential # type: ignore
+from tensorflow.keras.models import Sequential, load_model # type: ignore
 from tensorflow.keras.layers import LSTM, Dense # type: ignore
 import mediapipe as mp
 from datetime import datetime
 from database.models import UserActivity
 from database.models import Resource
+from database.models import ProcessedVideo
 from io import BytesIO
+from pymongo import MongoClient
+from collections import defaultdict
 
 from app import app, db
 
 app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key')
 oauth = OAuth(app)
 
+# MongoDB setup
+client = MongoClient(os.getenv('MONGO_URI'))
+db = client[os.getenv('MONGO_DB_NAME')]
 fs = gridfs.GridFS(db)
 
 # Define the list of actions that your model can predict
-actions = np.array(['church', 'mosque', 'love', 'seat', 'enough', 'temple', 'me', 'friend', 'you'])
+actions = np.array(['church', 'mosque', 'love', 'seat', 'enough', 'temple', 'me', 'friend', 'you', 'hello', 'thank', 'I', 'help'])
 
 # Load the LSTM model
 model01 = Sequential()
@@ -40,7 +41,7 @@ model01.add(LSTM(64, return_sequences=False, activation='relu'))
 model01.add(Dense(64, activation='relu'))
 model01.add(Dense(32, activation='relu'))
 model01.add(Dense(actions.shape[0], activation='softmax'))
-model01.load_weights('test1.h5')
+model01.load_weights('Model/Model.h5')
 
 print('Model loaded successfully!')
 
@@ -90,6 +91,7 @@ def webcam_feed():
     def generate():
         sequence = []
         sentence = []
+        predictions = []
         threshold = 0.8
 
         cap = cv2.VideoCapture(0)  # Capture video from the webcam
@@ -125,15 +127,18 @@ def webcam_feed():
 
                 if len(sequence) == timesteps:
                     res = model01.predict(np.expand_dims(sequence, axis=0))[0]
-                    if res[np.argmax(res)] > threshold:
-                        if len(sentence) > 0:
-                            if actions[np.argmax(res)] != sentence[-1]:
-                                sentence.append(actions[np.argmax(res)])
-                        else:
-                            sentence.append(actions[np.argmax(res)])
+                    predictions.append(np.argmax(res))
 
-                    if len(sentence) > 5:
-                        sentence = sentence[-5:]
+                    if np.unique(predictions[-26:])[0] == np.argmax(res):
+                        if res[np.argmax(res)] > threshold:
+                            if len(sentence) > 0:
+                                if actions[np.argmax(res)] != sentence[-1]:
+                                    sentence.append(actions[np.argmax(res)])
+                            else:
+                                sentence.append(actions[np.argmax(res)])
+
+                    if len(sentence) > 4:
+                        sentence = sentence[-4:]
 
                     # Display the prediction text on the frame
                     cv2.putText(image, ' '.join(sentence), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
@@ -152,38 +157,101 @@ def webcam_feed():
 def upload_file():
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
+    
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
+    user_email = request.form.get('user_email')
+    if not user_email:
+        return jsonify({'error': 'User email is required'}), 400
+
     # Save the uploaded file to a temporary location
-    file_path = 'temp_video.mp4'
+    file_path = secure_filename(file.filename)
     file.save(file_path)
 
     # Read the video file
     cap = cv2.VideoCapture(file_path)
-    frames = []
-    while len(frames) < 30:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        frame = cv2.resize(frame, (126, 126))  # Resize to the input size of the model
-        frame = frame / 255.0  # Normalize the frame
-        features = extract_keypoints(frame)
-        frames.append(features)
+    sequence = []
+    sentence = []
+    predictions = []
+    threshold = 0.8
+    timesteps = 30  # Define the number of timesteps
+
+    # Define the codec and create VideoWriter object for the output video
+    output_video_path = 'temp_output_video.avi'
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter(output_video_path, fourcc, 20.0, (640, 480))
+
+    with mp.solutions.holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            frame = cv2.resize(frame, (640, 480))  # Resize to the desired output size
+            frame = (frame / 255.0 * 255).astype(np.uint8)  # Normalize the frame and convert back to uint8
+
+            # Process the frame with MediaPipe holistic model
+            results = holistic.process(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+
+            # Extract keypoints
+            keypoints = extract_keypoints(results)
+            sequence.append(keypoints)
+            sequence = sequence[-timesteps:]
+
+            if len(sequence) == timesteps:
+                res = model01.predict(np.expand_dims(sequence, axis=0))[0]
+                predictions.append(np.argmax(res))
+
+                if np.unique(predictions[-10:])[0] == np.argmax(res):
+                    if res[np.argmax(res)] > threshold:
+                        if len(sentence) > 0:
+                            if actions[np.argmax(res)] != sentence[-1]:
+                                sentence.append(actions[np.argmax(res)])
+                        else:
+                            sentence.append(actions[np.argmax(res)])
+
+                if len(sentence) > 5:
+                    sentence = sentence[-5:]
+
+                # Display the prediction text on the frame
+                cv2.putText(frame, ' '.join(sentence), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+            # Add frame to the output video
+            out.write(frame)
     cap.release()
+    out.release()
 
-    if len(frames) < 30:
-        return jsonify({'error': 'Video too short, need at least 30 frames'}), 400
+    # Save the output video to MongoDB
+    with open(output_video_path, 'rb') as f:
+        file_id = fs.put(f, filename=output_video_path)
 
-    frames = np.array(frames)
-    frames = np.expand_dims(frames, axis=0)  # Add batch dimension
+    # Generate the processed video URL
+    processed_video_url = url_for('download_processed_video', file_id=str(file_id), _external=True)
 
-    # Make prediction
-    prediction = model01.predict(frames)
-    predicted_action = actions[np.argmax(prediction)]
+    # Save metadata to MongoDB
+    processed_video = ProcessedVideo(
+        user_email=user_email,
+        original_filename=file.filename,
+        processed_file_id=file_id,
+        upload_time=datetime.utcnow(),
+        processed_video_url=processed_video_url
+    )
+    db.processed_videos.insert_one(processed_video.to_dict())
 
-    return jsonify({'result': predicted_action})
+    # Remove the temporary files
+    os.remove(file_path)
+    os.remove(output_video_path)
+
+    return jsonify({'success': 'File uploaded and processed successfully', 'file_id': str(file_id), 'processed_video_url': processed_video_url}), 200
+
+@app.route('/download_processed_video/<file_id>', methods=['GET'])
+def download_processed_video(file_id):
+    try:
+        file = fs.get(ObjectId(file_id))
+        return send_file(BytesIO(file.read()), download_name=file.filename, as_attachment=True)
+    except gridfs.errors.NoFile:
+        return jsonify({'error': 'File not found'}), 404
 
 ######### Authentication Routes #########
 @app.route('/authentication', methods=['GET', 'POST'])
@@ -364,9 +432,53 @@ def user_dashboard():
     if not user:
         return redirect(url_for('authentication'))
 
+    # Get the selected year from the query parameters or default to the current year
+    selected_year = int(request.args.get('year', datetime.now().year))
+
+    # Fetch the available years for the dropdown
+    video_years = db.processed_videos.aggregate([
+        {"$group": {"_id": {"year": {"$year": "$upload_time"}}}}
+    ])
+    login_years = db.user_activity.aggregate([
+        {"$group": {"_id": {"year": {"$year": "$timestamp"}}}}
+    ])
+    years = sorted(set([year['_id']['year'] for year in video_years] + [year['_id']['year'] for year in login_years]), reverse=True)
+
+    # Fetch the number of videos uploaded by the user based on each month of the selected year
+    video_uploads = db.processed_videos.aggregate([
+        {"$match": {"user_email": user_email, "$expr": {"$eq": [{"$year": "$upload_time"}, selected_year]}}},
+        {"$group": {
+            "_id": {"month": {"$month": "$upload_time"}, "year": {"$year": "$upload_time"}},
+            "count": {"$sum": 1}
+        }}
+    ])
+
+    # Fetch the number of logins done by the user based on each month of the selected year
+    logins = db.user_activity.aggregate([
+        {"$match": {"email": user_email, "activity_type": "login", "success": True, "$expr": {"$eq": [{"$year": "$timestamp"}, selected_year]}}},
+        {"$group": {
+            "_id": {"month": {"$month": "$timestamp"}, "year": {"$year": "$timestamp"}},
+            "count": {"$sum": 1}
+        }}
+    ])
+
+    # Prepare data for the graphs
+    video_uploads_data = defaultdict(int)
+    logins_data = defaultdict(int)
+
+    for upload in video_uploads:
+        video_uploads_data[upload['_id']['month']] = upload['count']
+
+    for login in logins:
+        logins_data[login['_id']['month']] = login['count']
+
+    # Convert defaultdict to regular dict for JSON serialization
+    video_uploads_data = dict(video_uploads_data)
+    logins_data = dict(logins_data)
+
     activities = list(db.user_activity.find({"email": user_email}).sort("timestamp", -1).limit(10))  # Fetch the 10 most recent activities for the user
     notification = session.pop('notification', None)
-    return render_template('pages/user_menu/user_dashboard.html', user=user, activities=activities, notification=notification)
+    return render_template('pages/user_menu/user_dashboard.html', user=user, activities=activities, notification=notification, video_uploads_data=video_uploads_data, logins_data=logins_data, years=years, selected_year=selected_year)
 
 @app.route('/model', methods=['GET'])
 def model():
@@ -456,9 +568,14 @@ def admin_dashboard():
     if not user:
         return redirect(url_for('authentication'))
 
-    activities = list(db.user_activity.find().sort("timestamp", -1).limit(10))  # Fetch the 10 most recent activities
+    page = int(request.args.get('page', 1))
+    per_page = 10
+    total_activities = db.user_activity.count_documents({})
+    total_pages = (total_activities + per_page - 1) // per_page
+
+    activities = list(db.user_activity.find().sort("timestamp", -1).skip((page - 1) * per_page).limit(per_page))
     notification = session.pop('notification', None)
-    return render_template('pages/admin_menu/admin_dashboard.html', user=user, activities=activities, notification=notification)
+    return render_template('pages/admin_menu/admin_dashboard.html', user=user, activities=activities, notification=notification, page=page, total_pages=total_pages)
 
 @app.route('/manage_users', methods=['GET'])
 def manage_users():
@@ -713,7 +830,8 @@ def get_dashboard_data():
     total_users = db.users.count_documents({"privilege": "user"})
     total_admins = db.users.count_documents({"privilege": "admin"})
     total_resources = db.resources.count_documents({})
-    total_activities = db.user_activities.count_documents({})
+    total_model_interactions = db.processed_videos.count_documents({})
+    total_feedbacks = db.feedback.count_documents({})
     gender_distribution = db.users.aggregate([
         {"$group": {"_id": {"$toLower": "$gender"}, "count": {"$sum": 1}}}
     ])
@@ -724,5 +842,7 @@ def get_dashboard_data():
         'total_users': total_users,
         'total_admins': total_admins,
         'total_resources': total_resources,
+        'total_model_interactions': total_model_interactions,
+        'total_feedbacks': total_feedbacks,
         'gender_distribution': gender_data
     })
