@@ -6,3 +6,5 @@ venv/
 database/__pycache__/
 Dataset2
 /Dataset/script.py
+routes/__pycache__/
+routes/__pycache__/routes.cpython-310.pyc
