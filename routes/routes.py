@@ -92,7 +92,7 @@ def webcam_feed():
         sequence = []
         sentence = []
         predictions = []
-        threshold = 0.8
+        threshold = 0.7
 
         cap = cv2.VideoCapture(0)  # Capture video from the webcam
         if not cap.isOpened():
@@ -137,8 +137,8 @@ def webcam_feed():
                             else:
                                 sentence.append(actions[np.argmax(res)])
 
-                    if len(sentence) > 4:
-                        sentence = sentence[-4:]
+                    if len(sentence) > 5:
+                        sentence = sentence[-5:]
 
                     # Display the prediction text on the frame
                     cv2.putText(image, ' '.join(sentence), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
@@ -175,7 +175,7 @@ def upload_file():
     sequence = []
     sentence = []
     predictions = []
-    threshold = 0.8
+    threshold = 0.5
     timesteps = 30  # Define the number of timesteps
 
     # Define the codec and create VideoWriter object for the output video
@@ -203,7 +203,7 @@ def upload_file():
                 res = model01.predict(np.expand_dims(sequence, axis=0))[0]
                 predictions.append(np.argmax(res))
 
-                if np.unique(predictions[-10:])[0] == np.argmax(res):
+                if np.unique(predictions[-26:])[0] == np.argmax(res):
                     if res[np.argmax(res)] > threshold:
                         if len(sentence) > 0:
                             if actions[np.argmax(res)] != sentence[-1]:
