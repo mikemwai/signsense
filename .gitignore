@@ -8,3 +8,9 @@ Dataset2
 /Dataset/script.py
 routes/__pycache__/
 routes/__pycache__/routes.cpython-310.pyc
+Detected Videos/
+Processed Dataset/
+Videos/
+utilities/__pycache__/utils.cpython-310.pyc
+utilities/__pycache__/extensions.cpython-310.pyc
+database/__pycache__/config.cpython-310.pyc
