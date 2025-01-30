@@ -2,6 +2,49 @@
 
 This is a machine learning model designed for the recognition of Kenyan Sign Language. This project aims to bridge the communication gap by providing an efficient and accessible tool for understanding and interpreting Kenyan Sign Language.
 
+![Flask Version](https://img.shields.io/badge/Flask-3.1%2B-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+## Project Structure
+
+```
+signsense/
+├── Dataset/
+│   ├── Dataset/
+│   ├── Dataset.md
+│   └── Dataset_Visual.png
+├── Logs/
+├── database/
+│   ├── DATABASE.md
+│   ├── config.py
+│   ├── create_db.py
+│   └── models.py
+├── model/
+│   ├── Model.h5
+│   ├── Model.md
+│   ├── comparative_analysis_output.png
+│   ├── confusionmatrix_output.png
+│   ├── metrics.png
+│   └── signsense_mediapipe_lstm.ipynb
+├── routes/
+│   └── routes.py
+├── static/
+│   ├── css/
+│   ├── images/
+│   ├── js/
+│   └── logo.png
+├── templates/
+│   ├── layouts/
+│   └── pages/
+├── utilities/
+│   ├── extensions.py
+│   └── utils.py
+├── .gitignore
+├──  LICENSE.txt
+├── app.py
+└── requirements.txt
+```
+
 ## Table of Contents
 
 1. [Installation](#installation)
