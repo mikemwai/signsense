@@ -73,7 +73,7 @@ signsense/
  4. Navigate to the project directory and create a virtual environment on your local machine through the command line:
     
        ```sh
-        python -m venv myenv
+        python -m venv venv
        ```
     
 4. Install the required packages:
