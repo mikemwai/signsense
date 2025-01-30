@@ -1,16 +1,29 @@
 # create_db.py
 import sys
 import os
+from flask import Flask
+from pymongo import MongoClient
+from models import User, UserActivity, Resource, Feedback, ProcessedVideo
+from pymongo.errors import OperationFailure
+from werkzeug.security import generate_password_hash
+from config import Config
 
 # Ensure the parent directory is in the PYTHONPATH
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app import db
-from database.models import User
-from pymongo.errors import OperationFailure
-from werkzeug.security import generate_password_hash
+app = Flask(__name__)
+app.config.from_object(Config)
+
+client = MongoClient(app.config['MONGO_URI'])
+db = client[app.config['MONGO_DB_NAME']]
 
 try:
+    # Create collections by inserting a dummy document and then deleting it
+    collections = ['users', 'user_activities', 'resources', 'feedbacks', 'processed_videos']
+    for collection in collections:
+        db[collection].insert_one({"init": True})
+        db[collection].delete_one({"init": True})
+
     user1 = User(
         first_name="John",
         last_name="Doe",
@@ -34,5 +47,6 @@ try:
     db.users.insert_one(user1.to_dict())
     db.users.insert_one(user2.to_dict())
     print("User inserted successfully.")
+    print("Collections created successfully.")
 except OperationFailure as e:
     print(f"Operation failed: {e.details['errmsg']}")
