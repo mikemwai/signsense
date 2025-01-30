@@ -59,15 +59,15 @@ signsense/
 ## Installation
 
 1. Clone the repository:
-    ```
+    ```sh
     git clone https://github.com/mikemwai/signsense.git
     ```
 2. Navigate to the project directory:
-    ```
+    ```sh
     cd signsense
     ```
 3. Install the required packages:
-    ```
+    ```sh
     pip install -r requirements.txt
     ```
 
