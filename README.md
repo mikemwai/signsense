@@ -59,14 +59,25 @@ signsense/
 ## Installation
 
 1. Clone the repository:
+   
     ```sh
     git clone https://github.com/mikemwai/signsense.git
     ```
-2. Navigate to the project directory:
+    
+3. Navigate to the project directory:
+   
     ```sh
     cd signsense
     ```
-3. Install the required packages:
+    
+ 4. Navigate to the project directory and create a virtual environment on your local machine through the command line:
+    
+       ```sh
+        python -m venv myenv
+       ```
+    
+4. Install the required packages:
+   
     ```sh
     pip install -r requirements.txt
     ```
