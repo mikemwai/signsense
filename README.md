@@ -2,6 +2,17 @@
 
 This is a machine learning model designed for the recognition of Kenyan Sign Language. This project aims to bridge the communication gap by providing an efficient and accessible tool for understanding and interpreting Kenyan Sign Language.
 
+## Table of Contents
+
+1. [Installation](#installation)
+2. [Usage](#usage)
+3. [Contributions](#contributions)
+4. [Issues](#issues)
+5. [License](#license)
+6. [Database](./database/DATABASE.md)
+7. [Model](./model/Model.md)
+8. [Dataset](./Dataset/Dataset.md)
+
 ## Installation
 
 1. Clone the repository:
@@ -19,9 +30,9 @@ This is a machine learning model designed for the recognition of Kenyan Sign Lan
 
     - Picks up all the packages from the project and copies to the `requirements.txt` file:
       
-    ```
-    pip freeze >> requirements.txt
-    ```
+        ```sh
+        pip freeze >> requirements.txt
+        ```
 
 ## Usage
 
