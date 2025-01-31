@@ -13,4 +13,4 @@
 
 - The dataset contains 13 gesture classes where each class contained 900 NumPy array files that were trained on the Machine Learning (ML) model.
 
-![Dataset Overview](Dataset_Visual.png)
+  ![Dataset Overview](Dataset_Visual.png)
