@@ -1,6 +1,7 @@
 ## Machine Learning Model 
 
-- 
+- The Machine Learning model implements a hybrid CNN-RNN architecture. The CNN component implements [Mediapipe's CNN-based models](https://ai.google.dev/edge/mediapipe/solutions/vision/gesture_recognizer#models) which include BlazePalm and Hand Landmark model.
+- The RNN component implements [Long Short Term Memory (LSTM)](https://www.mathworks.com/discovery/lstm.html#how-lstms-work).
 
 ![Comparative Analysis](comparative_analysis_output.png)
 
