@@ -125,3 +125,11 @@ If you have any issues with the project, feel free to open up an [issue](https:/
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
+
+---
+
+## Improvements
+
+- `Facial mesh`: Incorporate Mediapipe's face mesh to capture the user's emotions in determing the demonstrated sign. Model needs to be trained after incorporating the face mesh.
+- `Avatar`: Develop an avatar that teaches learners how to create the different sign language notations. 
+- `Dataset`: Upgrade the KSL dataset by incorporating more classes to capture more words.
