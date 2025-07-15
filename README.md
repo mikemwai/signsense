@@ -110,13 +110,14 @@ signsense/
 
 ## Contributions
 
-If you'd like to contribute to this project:
+- If you'd like to contribute to this project:
 
-- Please fork the repository.
-- Create a new branch for your changes.
-- Submit a [pull request](https://github.com/mikemwai/signsense/pulls).
+   - Please fork the repository.
+   - Create a new branch for your changes.
+   - Submit a [pull request](https://github.com/mikemwai/signsense/pulls).
 
-Contributions, bug reports, and feature requests are welcome!
+- Additionally, feel free to send an [email](mailto:hellomikemwai@gmail.com) where you will receive feedback within 24 hours.
+- Contributions, bug reports, and feature requests are welcome!
 
 ## Issues
 
